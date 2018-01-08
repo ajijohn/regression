@@ -1,0 +1,34 @@
+---
+title: "Homework 1"
+author: "Aji John"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+
+
+Q1. For the scientific question of interest, what are the two primary variables in this study? What is the response variable and what is the predictor variable?   What types of variables are they:  quantitative or qualitative?  Discrete or continuous?  Nominal, ordinal, interval, or ratios?  Censored (right, left, or both) or uncensored? Explain briefly.
+
+Q1A. The two primary variables are 'atropy', and 'age'. Response variable is 'atropy', and predictor variable is 'age'. Both the variables are quantitative, 'Age' and 'Atropy' are discrete.
+
+```{r,echo=FALSE}
+mri <- read.table("data/mri.txt",header=TRUE) 
+str(mri)
+```
+
+
+```{r,,echo=FALSE}
+library(dplyr)
+#mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count)) %>% tail()
+mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count))
+```
+Q2.What is the population of interest for this study?  What is the sample?  What is the size of the sample?  Are there any individuals in the sample who have missing data on smoking history?  If so, provide the participant identification numbers for any study individuals who have missing data on smoking history.
+
+Q2A. Adults aged 65 years and older is the population of interest. Sample is 735 individuals randomly selected from medicare rolls.Yes, one individual has missing smoking history, and the id is 545.
+
+```{r,,echo=FALSE}
+mri%>%filter(is.na(packyrs))
+```
+
+Q3. 
