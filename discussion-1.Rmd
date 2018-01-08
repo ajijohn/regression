@@ -1,0 +1,99 @@
+---
+title: "R Notebook- Discussion 1 - Biostatistics"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+For this analysis, we shall focus on measure of mental status, including the digit symbol substitution test (DSST – a test of attention) and the modified mini mental status exam (MMMSE). We are interested in determining correlates of decreased cognitive function.
+
+The data to be analyzed for this assignment is a subset of the thousands of variables on a subset of the thousands of participants in this study. The questions to be addressed are:
+
+What associations exist between measurements of cognitive function (DSST and MMMSE) and the available data on participant demographics (age, sex, weight, height),  behavior (smoking, alcohol consumption), and various clinical and laboratory measures of organ system functioning (e.g, blood pressure, liver function, kidney function, lung function)?
+
+What associations exist between the cognitive function measurements and mortality?
+
+Are any of the cognitive function scores predictive of mortality beyond the predictive capabilities of the other available variables?
+
+Do the cognitive function measures reflect underlying risk factors for death separate from other known disease processes (such as cardiovascular disease, kidney disease, diabetes, high blood pressure), or are these scores merely signs of those disease processes?
+
+
+Demographics - 
+- 65 or older
+- Generally healthy
+- Observational and cohort - longitidtal (11 years)
+- Exploratory analysis
+
+
+```{r}
+data <-read.csv("data/dsst.txt", sep="")#read in data
+summary(data$dsst)
+#summarizedsst
+summary(data$mmmse)
+summary(data$age)
+table(data$male)#number of males (0=female, 1=male)
+
+```
+
+# We do descriptive statics to ensure data is coded accoring to the obhectves of the study, missimg data, assess assumptions on analysis (about variances, way to results about the ana;ysid ( results ), 
+
+
+What are correlates of decreased cognitive function?
+What associations exist between measurements of cognitivefunction and the available data onIparticipant demographics?Ibehavior?Iand various clinical and laboratory measures of organ systemfunctioning?
+
+```{r}
+#scatterplot
+plot(data$age,data$dsst,xlab="age",ylab="DSST")
+plot(data$age,data$mmmse,xlab="age",ylab="MMMSE")
+#boxplots
+boxplot(data$dsst~data$male,names=c("female","male"),ylab="DSST")
+boxplot(data$mmmse~data$male,names=c("female","male"),ylab="MMMSE")
+```
+
+
+# summarize your finding
+```{r}
+mod1 <-lm(dsst~age, data=data)
+summary(mod1)
+```
+
+# states if null hypothesus is true , 
+# slope for age , ng rel
+# inrercepr - age=0, not meaningful
+# we are missing the CI
+
+```{r}
+
+confint.default(mod1)
+```
+
+#lets plot the regresson line
+
+```{r}
+#plots regression line on top of scatter plot
+plot(data$age, data$dsst, xlab="Age", ylab="DSST")
+abline(mod1, lwd=3, col="red")
+legend("topright",c("Regression Line"),lwd=3, col="red", cex=0.8)
+```
+
+#summarize your finding
+
+We estimate that for each 1 year difference in age between two populations the mean DSST is 0.83 lower in the older group. The 95% confidence interval suggests that observed mean DSST scores between -0.75 and -0.91 lower per year are not unusual. We found the relationship between age and DSST score to be significant, with a p-valueless than 0.001.
+
+
+# Do the same for gender (binary predictor)
+```{r}
+mod2 <-lm(dsst~male,data=data)
+summary(mod2)
+```
+
+#CI fkr gender
+# do the finding
+
+
+# we can do a t-test instead
+```{r}
+t.test(data$dsst[data$male==1],data$dsst[data$male==0])
+```
+
+# use the DF, p-value,  and the CI in your writeup
