@@ -6,29 +6,81 @@ output:
   html_notebook: default
 ---
 
-
+```{r , echo=FALSE, message=FALSE,warning=FALSE,error=FALSE}
+library(ggplot2)
+```
 
 Q1. For the scientific question of interest, what are the two primary variables in this study? What is the response variable and what is the predictor variable?   What types of variables are they:  quantitative or qualitative?  Discrete or continuous?  Nominal, ordinal, interval, or ratios?  Censored (right, left, or both) or uncensored? Explain briefly.
 
-Q1A. The two primary variables are 'atropy', and 'age'. Response variable is 'atropy', and predictor variable is 'age'. Both the variables are quantitative, 'Age' and 'Atropy' are discrete.
+Answer. The two primary variables are 'atropy', and 'age'. Response variable is 'atropy', and predictor variable is 'age'. Both the variables are quantitative, 'Age' and 'Atropy' are discrete.
 
-```{r,echo=FALSE}
+```{r , echo=FALSE, message=FALSE,warning=FALSE,error=FALSE}
 mri <- read.table("data/mri.txt",header=TRUE) 
-str(mri)
+#str(mri)
 ```
 
 
-```{r,,echo=FALSE}
+```{r,,echo=FALSE,echo=FALSE, message=FALSE,warning=FALSE,error=FALSE,results='hide'}
 library(dplyr)
-#mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count)) %>% tail()
-mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count))
+mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count)) %>% tail()
+#mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count))
 ```
 Q2.What is the population of interest for this study?  What is the sample?  What is the size of the sample?  Are there any individuals in the sample who have missing data on smoking history?  If so, provide the participant identification numbers for any study individuals who have missing data on smoking history.
 
-Q2A. Adults aged 65 years and older is the population of interest. Sample is 735 individuals randomly selected from medicare rolls.Yes, one individual has missing smoking history, and the id is 545.
+Answer. Adults aged 65 years and older is the population of interest. Sample is 735 individuals randomly selected from medicare rolls.Yes, one individual has missing smoking history, and the id is 545.
 
-```{r,,echo=FALSE}
+```{r,echo=FALSE,echo=FALSE, message=FALSE,warning=FALSE,error=FALSE,results='hide',include=FALSE}
 mri%>%filter(is.na(packyrs))
 ```
 
-Q3. 
+Q3.Problems 4 – 7 ask you to dichotomize the time to death according to death within 5 years of study enrollment or death after 5 years. Why is this valid? Provide descriptive statistics that support your answer. 
+
+```{r,echo=FALSE,echo=FALSE, message=FALSE,warning=FALSE,error=FALSE,results='hide',include=FALSE}
+mri%>% group_by(death)%>%summarise(groups=n()) %>% View()
+```
+Answer. Approx. 18% of the individuals who were part of the study were classified as observed to die while on study. Analysis has to be partitioned as 18% of the samples would have incomplete observations. 
+
+Death   | Groups
+--------| ------
+0       | 602
+1       | 133
+
+Q4.Provide a suitable descriptive statistical analysis for selected variables in this dataset as might be presented in a table to be included in a manuscript exploring the association between smoking history in pack years and 5 year all-cause mortality in the medical literature. In addition to the two variables of primary interest, you may restrict attention to age, sex, weight, and prior history of cardiovascular disease, e.g., coronary heart disease (CHD), congestive heart failure (CHF), and stroke.
+
+Answer. We are studying the association between overall mortality and smoking history in pack years.
+
+```{r,echo=FALSE,include=TRUE,warning=FALSE}
+mri%>% ggplot() + geom_point(aes(ptid,packyrs))
+```
+
+```{r,echo=FALSE,include=FALSE,warning=FALSE}
+mri%>% filter(!is.na(packyrs) & (packyrs >=1 & packyrs <=10 ))  %>% tally()
+
+```
+
+: Smoking history.
+
++---------+-------------+------------+-------------+------------+------------+        
+|         | 0  <br>     | <= 10      | 11-25       |26-50       | greater than 50  
+|         | (n=321)     | (n=73)     | (n=99)      | (n=148)    | (n=93)
++=========+=============+============+=============+============+============+
+| Age     | 75.36(66-99)| - built- r |             |            |
+|         |             |            |             |            |
++---------+-------------+------------+-------------+------------+------------+
+| Sex     | $2.10       | - cures    |             |            |
+|         |             | - tasty    |             |            |
++---------+-------------+------------+-------------+------------+------------+
+| Weight  | $2.10       | - cures    |             |            |
+|         |             | - tasty    |             |            |
++---------+-------------+------------+-------------+------------+------------+
+| CHF     | $2.10       | - cures    |             |            |
+|         |             | - tasty    |             |            |
++---------+-------------+------------+-------------+------------+------------+
+| CHD     | $2.10       | - cures    |             |            |
+|         |             | - tasty    |             |            |
++---------+-------------+------------+-------------+------------+------------+
+| Stroke  | $2.10       | - cures    |             |            |
+|         |             | - tasty    |             |            |
++---------+-------------+------------+-------------+------------+------------+
+
+* one row excluded for missing smoking record
