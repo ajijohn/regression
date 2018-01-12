@@ -12,7 +12,7 @@ library(ggplot2)
 
 Q1. For the scientific question of interest, what are the two primary variables in this study? What is the response variable and what is the predictor variable?   What types of variables are they:  quantitative or qualitative?  Discrete or continuous?  Nominal, ordinal, interval, or ratios?  Censored (right, left, or both) or uncensored? Explain briefly.
 
-Answer. The scientific question explores magnetic resonance imaging (MRI) changes and its relationship with  aging, cardiovascular disease, cerebrovascular disease, and mortality. One of forays is to look at the behavior or lifesyle choice of smoking behavior, and asking whether it explains death by any cause. The two primary variables are 'packyrs'(smoking history), and 'death'. Response variable is 'death', and predictor variable is 'packyrs'. Predictor variable is quantitative, and response variable is discrete categorical. The study is right censored. 
+Answer. The scientific question explores magnetic resonance imaging (MRI) changes and its relationship with aging, cardiovascular disease, cerebrovascular disease, and mortality. One of forays is to look at the behavior or lifesyle choice of smoking behavior, and asking whether it explains death by any cause. The two primary variables are 'packyrs'(smoking history), and 'death'. Response variable is 'death', and predictor variable is 'packyrs'. Predictor variable is quantitative, and response variable is discrete categorical. The study is right censored. 
 
 ```{r , echo=FALSE, message=FALSE,warning=FALSE,error=FALSE}
 mri <- read.table("data/mri.txt",header=TRUE) 
@@ -27,7 +27,7 @@ mri%>%group_by(ptid) %>% summarise(count=n()) %>% arrange(desc(count)) %>% tail(
 ```
 Q2. What is the population of interest for this study?  What is the sample?  What is the size of the sample?  Are there any individuals in the sample who have missing data on smoking history?  If so, provide the participant identification numbers for any study individuals who have missing data on smoking history.
 
-Answer. Adults aged 65 years and older is the population of interest. Sample is 735 individuals randomly selected from medicare rolls.Yes, one individual has missing smoking history, and the id is 545.
+Answer. Adults aged 65 years and older, and generally healthy is the population of interest. Sample is 735 individuals randomly selected from medicare rolls. There is one individual with missing smoking history, and the id is 545.
 
 ```{r,echo=FALSE,echo=FALSE, message=FALSE,warning=FALSE,error=FALSE,results='hide',include=FALSE}
 mri%>%filter(is.na(packyrs))
@@ -38,7 +38,7 @@ Q3. Problems 4 – 7 ask you to dichotomize the time to death according to death
 ```{r,echo=FALSE,echo=FALSE, message=FALSE,warning=FALSE,error=FALSE,results='hide',include=FALSE}
 mri%>% group_by(death)%>%summarise(groups=n()) %>% View()
 ```
-Answer. Approx. 18% of the individuals who were part of the study were classified as observed to die while on study. Analysis has to be partitioned as 18% of the samples were not present till the end of obserbation period. 
+Answer. Approx. 18% of the individuals who were part of the study were classified as observed to die while on study. Moreover a scenario of right censored would have us to dichotomize.
 
 : Breakdown with respect to participants vital status
 
@@ -49,7 +49,7 @@ Observed to die      | 133
 
 Q4. Provide a suitable descriptive statistical analysis for selected variables in this dataset as might be presented in a table to be included in a manuscript exploring the association between smoking history in pack years and 5 year all-cause mortality in the medical literature. In addition to the two variables of primary interest, you may restrict attention to age, sex, weight, and prior history of cardiovascular disease, e.g., coronary heart disease (CHD), congestive heart failure (CHF), and stroke.
 
-Answer. We are studying the association between overall mortality and smoking history in pack years.
+Answer. Descriptive statistical analysis in Table 2.
 
 ```{r,echo=FALSE,include=FALSE,warning=FALSE}
 mri%>% ggplot() + geom_point(aes(ptid,packyrs))
@@ -114,7 +114,7 @@ var.test(mri[!is.na(mri$packyrs)  & (mri$death ==1),]$packyrs,mri[!is.na(mri$pac
  
 ```
 
-Answer. We do a 2 sample regular t-test as we have two groups, and we have a continous variable as response(dependent), and categorical variable as predictor.
+Answer. We do a 2 sample regular t-test as we have two groups, and we have a continuous variable as response(dependent), and categorical variable as predictor.
 
 
 As p-value is 0.004 (using critical value of 0.05), we reject the null hypothesis that mean difference across groups defined by vital status at 5 years would be the same. With 95% Confidence interval, the difference in mean pack years between the survivability groups is  2.89 to 15.666566. The best estimate of the difference, i.e. the point estimate is 9.28245 units, not that unsual to see. 
@@ -190,6 +190,15 @@ Subsequently, we get a p-value of 0.09( higher than our critical value of 0.05) 
 
 Q8. Compare the association results of questions 5, 6 and 7, and briefly discuss any similarities and/or differences in the statistical inference.  
 
+Answer.
+
+|     | Null Hypothesis   | Smoking history significance | p\-value | Type of test
+|-----+-------------------+------------------------------+----------+-------------
+| Q5    | Rejected  | Positive  | 0.004 | t.test
+| Q6    | Not Rejected  | Negative  | 0.1 | chi-sq
+| Q7     | Not Rejected  | Negative  | 0.09 | Fischer exact
+
+The tests are not supportive of each other, with t-test, it gave the impression that higher mean pack years is observed in subjects who did not survive is significant, but the latter nominal driven tests ruled in favor of independence. 
 
 Q9. Briefly discuss limitations of the above association analyses that you conducted in questions 5 – 7 for detecting associations between smoking history and death within 5 years. What analysis would you have preferred a priori in order to answer the question about an association between smoking history and time to death? Why?
 
@@ -198,7 +207,8 @@ Answer.
 #### Limitation of above associated analysis
 * The analysis does not look into the variance inside the pack years
 * One of the assumptions we made in t-test in Q5 was that variances are same across two samples; infact, on subsequent analysis using variance test, it happens to be not the same (p-value = 1.499e-08) for two groups. 
-* We have more than two groups as we identified, and t-test is not ideal in such scenarios, higher chances of Type I error
+* We have more than two groups as we identified, so 2-sample t-test is not ideal in such scenarios.
+* Higher chances of Type I error because of lumping together smoking history.
 
 #### What analysis is preferred 
 * Linear regression or ANOVA is preferred. We would have preferred ANOVA as we have finer groupings of smoking behaviors which would help us to identify the sub-group which could be contributing to the rejection. Furthermore, we could also explore the interaction effects of other variables like age/sex/weight. Linear regression would accomplish similar results but could give us narrow analysis results whien using pack years variable, and additionally, having multiple predictor variables is a good motivation to use linear regression model.
