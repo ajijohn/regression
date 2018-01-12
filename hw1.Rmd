@@ -58,6 +58,8 @@ mri%>% filter(!is.na(packyrs) & (packyrs >=1 & packyrs <=10 ))  %>% tally()
 
 ```
 
+Min max & Std Dev is required
+
 : Smoking history.
 
 +---------+-------------+------------+-------------+------------+------------+        
@@ -82,29 +84,51 @@ mri%>% filter(!is.na(packyrs) & (packyrs >=1 & packyrs <=10 ))  %>% tally()
 | Stroke  | $2.10       | - cures    |             |            |
 |         |             | - tasty    |             |            |
 +---------+-------------+------------+-------------+------------+------------+
-
+| Death   |             | - tasty    |             |            |  
+| percent |             |            |             |            |  
+|         |             | - tasty    |             |            |
++---------+-------------+------------+-------------+------------+------------+
 * one row excluded for missing smoking record
 
-5.   Perform a statistical analysis evaluating an association between smoking history in pack years and 5-year all-cause mortality by comparing mean pack years across groups defined by vital status at 5 years. 
+5.Perform a statistical analysis evaluating an association between smoking history in pack years and 5-year all-cause mortality by comparing mean pack years across groups defined by vital status at 5 years. 
 
 ```{r,echo=FALSE,include=FALSE,warning=FALSE}
 mri%>% filter(!is.na(packyrs) & (packyrs ==0 )) %>% group_by(death) %>% summarise(count= n()) 
 
 
-#	Welch Two Sample t-test
+t.test(mri[!is.na(mri$packyrs)  & (mri$death ==1),]$packyrs,mri[!is.na(mri$packyrs) &  (mri$death ==0),]$packyrs)
 
-#data:  mri[!is.na(mri$packyrs) & (mri$packyrs == 0) & (mri$death ==  and mri[!is.na(mri$packyrs) & (mri$packyrs == 0) & (mri$death ==     0), ] and     1), ]
-#t = 0.14825, df = 2011.5, p-value = 0.8822
+#data:  mri[!is.na(mri$packyrs) & (mri$death == 1), ]$packyrs and mri[!is.na(mri$packyrs) & #(mri$death == 0), ]$packyrs
+#t = 2.8715, df = 160.2, p-value = 0.004639
 #alternative hypothesis: true difference in means is not equal to 0
 #95 percent confidence interval:
-# -755.2594  878.7803
+#  2.898333 15.666566
 #sample estimates:
 #mean of x mean of y 
-# 2616.813  2555.053 
+# 27.21361  17.93116  
+ 
 ```
 
-Answer. We do a t-test, For
+Answer. We do a 2 sample t-test, For
 
-*Group 0 - No smokers, 0 (thru the study) - 272, 1(not thru the study) - 49
+Death by 5(0) - get the average pack years
+Alive by 5(1) - get the average pack years
 
-As p-value is 0.8 (using critical value of 0.05), We fail to reject the null hypothesis that expected number of individuals based on being non-smoker would be the same.
+*Groups - 0 (thru the study) 1(not thru the study) 
+
+As p-value is 0.004 (using critical value of 0.05), We reject the null hypothesis that survivability of individuals based on being a smoker/non-smoker would be the same.
+95% Confidence interval, the difference in mean pack years between the survivability groups is  2.89 to 15.666566. The best estimate of the difference, i.e. the point estimate is 9.28245 units, not that unsual to see. In summary,  with our analysis we state that pack years has  influence on mortality and is found to be significant.
+
+
+
+6. Perform a statistical analysis evaluating an association between smoking history and 5-year all-cause mortality by comparing the probability of death within 5 years across groups defined by whether or not study participants have ever smoked.  Note that a participant who never smoked has 0 pack years, as is indicated in the documentation file. 
+
+Answer. We do a chi-test,
+
+2 by 2 table 
+
+Non smokers , and Smokers
+
+7. Perform a statistical analysis evaluating an association between smoking history and 5-year all-cause mortality by comparing the odds of death within 5 years across groups defined by whether or not the study participants ever smoked. 
+#apriori - 
+#fischers exact t-test
