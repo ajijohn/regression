@@ -58,18 +58,18 @@ mri%>% ggplot() + geom_point(aes(ptid,packyrs))
 ```{r,echo=FALSE,include=FALSE,warning=FALSE}
 mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25 ))  %>% tally()
 
-mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 10 )) %>% 
+mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25  )) %>% 
   summarise(meanag=mean(age),minag=min(age),maxag=max(age),stdage=sd(age),meanwt=mean(weight),minwt=min(weight),maxwt=max(weight),stdwt=sd(weight))
 
-mri%>% filter(!is.na(packyrs) & (packyrs > 0 & packyrs <= 10 )) %>% group_by(male)  %>% summarise(mg=n())
+mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25  )) %>% group_by(male)  %>% summarise(mg=n())
 
-mri%>% filter(!is.na(packyrs) & (packyrs > 0 & packyrs <= 10 )) %>% group_by(stroke)  %>% summarise(ms=n())
+mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25  )) %>% group_by(stroke)  %>% summarise(ms=n())
 
-mri%>% filter(!is.na(packyrs) & (packyrs > 0 & packyrs <= 10 )) %>% group_by(chf)  %>% summarise(mchf=n())
+mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25 )) %>% group_by(chf)  %>% summarise(mchf=n())
 
-mri%>% filter(!is.na(packyrs) & (packyrs > 0 & packyrs <= 10 )) %>% group_by(chd)  %>% summarise(mchd=n())
+mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25  )) %>% group_by(chd)  %>% summarise(mchd=n())
 
-mri%>% filter(!is.na(packyrs) & (packyrs > 0 & packyrs <= 10 )) %>% group_by(death)  %>% summarise(mcdt=n())
+mri%>% filter(!is.na(packyrs) & (packyrs > 10 & packyrs <= 25 )) %>% group_by(death)  %>% summarise(mcdt=n())
 
 
 ```
@@ -81,13 +81,13 @@ mri%>% filter(!is.na(packyrs) & (packyrs > 0 & packyrs <= 10 )) %>% group_by(dea
 
 |               | 0\-(n\=321)  | \<\=10\-(n\=73) | 11\-25\-(n\=99) | 26\-50\-(n\=148)   |\> 50\-(n\=93) |
 |:--------------|:-------------|:----------------|:----------------|:-------------------|:--------------|
-|   Age(yrs)         |  75.3(5.9, 66\-99)          |  74.8(5.8, 68\-95)     |                 |                    |
-|   Male(\%)          |  38\%                      |    63\%                |                 |                    |
-|   Weight(lbs)          |  155.6(30.2, 74\-264)   |  162.2(27.3, 107\-242) |                 |                    |
-|   Prior Stroke Diagnosis(\%)          |  3\%     |    2\%                 |                 |                    |
-|   Prior CHF Diagnosis(\%)         |  5\%         |    4\%                 |                 |                    |
-|   Prior CHD  Diagnosis(\%)        |  9\%         |    6\%                 |                 |                    |
-|   Death(\%)          |  15\%                     |    12\%                |                 |                    |
+|   Age(yrs)         |  75.3(5.9, 66\-99)          |  74.8(5.8, 68\-95)     | 74.1(4.5, 65\-89)                |                    |
+|   Male(\%)          |  38\%                      |    63\%                |     47\%            |                    |
+|   Weight(lbs)          |  155.6(30.2, 74\-264)   |  162.2(27.3, 107\-242) | 157.6(26.1, 107\-243)                |                    |
+|   Prior Stroke Diagnosis(\%)          |  3\%     |    2\%                 | 9\%                |                    |
+|   Prior CHF Diagnosis(\%)         |  5\%         |    4\%                 | 6\%                |                    |
+|   Prior CHD  Diagnosis(\%)        |  9\%         |    6\%                 | 5\%                |                    |
+|   Death(\%)          |  15\%                     |    12\%                | 14\%                |                    |
               * one row excluded for missing smoking record
               * descriptive statistics are presented in mean(std dev, min-max)
 
