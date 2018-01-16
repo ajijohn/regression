@@ -1,0 +1,154 @@
+---
+title: "Homework 2"
+author: "Aji John"
+date: "Winter Quarter 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+_This template is meant to be a helpful starting point for writing up homeworks for students who want to use Rmarkdown. Modify/distribute it as you see fit. At a minimum, you'll want to remove these comments when you turn in your assignments. For additional information about using Rmarkdown, see the help files and links posted to the course Canvas website. Remember, raw R code/output is not acceptable in your homework._
+
+
+```{r setup, include=FALSE}
+### Setting up the packages, options we'll need:
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(uwIntroStats)
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+# Question 1
+ In this question, you will perform statistical analyses evaluating an association between serum creatinine levels (measured from blood) and 5 year all-cause mortality by comparing mean creatinine levels across groups defined by vital status at 5 years using a t-test that presumes homoscedasticity (i.e., equal variances across groups). As this problem is directed toward illustrating correspondences between the t-test and linear regression, you do not need to provide full statistical inference for this problem. Instead, just answer the following questions.
+ 
+## (a) 
+What are the sample size, sample mean and sample standard deviation of serum creatinine levels among subjects who survived at least 5 years? 
+
+```{r Q1a}
+### Question 1:
+# Part (a)
+mri <- read.table("data/mri.txt",header=TRUE) 
+#kable(descrip(mri[mri$death==0,'crt']), format = "markdown")
+#kable(summary(cars), format = "markdown")
+kable(mri%>%filter(!is.na(crt) & death==0) %>% 
+        group_by(death) %>%
+        summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
+        select(c('n','mean','sd')) %>%
+        as.data.frame() , format = "markdown")
+ 
+
+```
+* Two samples skipped as 'NA' featured in them.
+* Units for mean is mg/dl
+
+## (b)
+What are the sample size, sample mean and sample standard deviation of creatinine levels among subjects who died within 5 years? 
+```{r Q1b, fig.align='center'}
+# Part (b)
+
+kable(mri%>%filter(!is.na(crt) & death==1) %>% 
+        group_by(death) %>%
+        summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
+        select(c('n','mean','sd')) %>%
+        as.data.frame() , format = "markdown")
+
+```
+* Units for mean is mg/dl
+
+## (c)
+What are the point estimate, the estimated standard error of that point estimate, and the 95% confidence interval for the mean creatinine level in a population of similar subjects who would survive at least 5 years?
+
+```{r , include=FALSE,fig.align='center'}
+# Part (c)
+
+t.test(mri[mri$death==0,]$crt)
+
+crt_0 <- mri[!is.na(mri$crt) & mri$death==0,]$crt
+
+xbar<- mean(crt_0)
+sigma <- sd(crt_0)
+
+e1 <- qnorm(.975) * (sigma /sqrt(length(crt_0))) # error
+e2 <- qnorm(.025) * (sigma /sqrt(length(crt_0)))
+
+SE <- (sigma /sqrt(length(crt_0)))
+
+int.s1 <- xbar - e1
+int.s2 <- xbar - e2
+
+```
+
+Point estimate is 1.0325 mg/dl
+SE is 0.009974404
+95% CI is 1.01 to 1.05
+
+## (d)
+What are the point estimate, the estimated standard error of that point estimate, and the 95% confidence interval for the mean creatinine level in a population of similar subjects who would die within 5 years? 
+
+```{r ,include=FALSE, fig.align='center'}
+# Part (d)
+
+t.test(mri[mri$death==1,]$crt)
+
+crt_1 <- mri[!is.na(mri$crt) & mri$death==1,]$crt
+
+xbar<- mean(crt_1)
+sigma <- sd(crt_1)
+
+e1 <- qnorm(.975) * (sigma /sqrt(length(crt_1))) # error
+e2 <- qnorm(.025) * (sigma /sqrt(length(crt_1)))
+
+SE <- (sigma /sqrt(length(crt_0)))
+
+int.s1 <- xbar - e1
+int.s2 <- xbar - e2
+
+```
+Point estimate is 1.2060 mg/dl
+SE is 0.01885457
+95% CI is 1.12 to 1.28
+
+## (e)
+What are the point estimate and the 95% confidence interval for the difference in creatinine means between a population of similar subjects that survives at least 5 years and a population of similar subjects that dies within 5 years? What is the P value for testing the hypothesis that the two populations have the same mean creatinine level? What conclusions do you reach about a statistically significant association between serum creatinine and 5 year all-cause mortality?
+
+```{r , include=FALSE,fig.align='center'}
+# Part (e)
+
+t.test(mri[!is.na(mri$crt)  & (mri$death ==0),]$crt,mri[!is.na(mri$crt) &  (mri$death ==1),]$crt)
+
+```
+The best estimate of the difference, i.e. the point estimate is -0.173515 units ( Survive Sample, Observed to Die Sample.  )
+
+95% CI , difference of mean 'crt' between the groups is (-0.25506646 , -0.09196361).
+
+p-value is 4.501e-05, and is found to be significant, and we reject our null hypothesis that  two populations have the same mean creatinine level.
+
+## (f)
+Although we did not consider age at the time of enrollment in the questions above, could the association analysis for creatinine level and 5 year all-cause mortality conducted using the t-test potentially be confounded by the age of the subjects at the time of the MRI?  Briefly explain why or why not this is plausible?  Provide any descriptive statistics (e.g. an appropriate table, plot, etc.) giving evidence for or against the association results and conclusions above with the t-test potentially being confounded by age.
+
+```{r ,fig.align='center'}
+# Part (e)
+
+boxplot(age~death,mri, main="Age distribution", 
+  	xlab="5 Year all-cause mortality", ylab="Age (Yrs)",col=topo.colors(2))
+
+legend("topright", inset=.02, title="Groups",
+   c("0-Survived","1"), fill=topo.colors(2), horiz=TRUE, cex=0.8)
+
+
+```
+
+The age distribution is notable in the study, we can see from the above figure that median is not the same for the two groups, and it is possibly adding the variation. 
+
+
+# Question 2
+```{r Q2}
+### Question 2:
+# note: round() Does not print trailing zeros
+dist.sd1 <- round(sd(cars$dist), digits = 1) 
+```
+
+You can refer to objects you defined in previous code chunks in the body of your document's text. As an example, the standard deviation distance in the `cars` data is `r sd(cars$dist)` kilometers. Note that we can use the command `round(sd(cars$dist), 1)` to round to the first decimal place, `r dist.sd1` kilometers. 
+

@@ -1,0 +1,46 @@
+---
+title: "Homework Template"
+author: "BIOST 515-518"
+date: "Winter Quarter 2018"
+output:
+  word_document: default
+---
+
+_This template is meant to be a helpful starting point for writing up homeworks for students who want to use Rmarkdown. Modify/distribute it as you see fit. At a minimum, you'll want to remove these comments when you turn in your assignments. For additional information about using Rmarkdown, see the help files and links posted to the course Canvas website. Remember, raw R code/output is not acceptable in your homework._
+
+
+```{r setup, include=FALSE}
+### Setting up the packages, options we'll need:
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+# Question 1
+
+## (a) 
+A brief summary of the `cars` data is given below. The `kable` function from the `knitr` package offers a quick way to convert objects from `R` into pre-formatted table in Word.
+```{r Q1a}
+### Question 1:
+# Part (a)
+kable(summary(cars), format = "markdown")
+
+```
+
+## (b)
+We provide a scatterplot for the `cars` data below. Don't forget that you should change the default axis labels to include _units_ for the observations.
+```{r Q1b, fig.align='center'}
+# Part (b)
+with(cars, plot(x = speed, y = dist, xlab = "Speed (km/h)", ylab = "Distance (km)"))
+
+```
+
+# Question 2
+```{r Q2}
+### Question 2:
+# note: round() Does not print trailing zeros
+dist.sd1 <- round(sd(cars$dist), digits = 1) 
+```
+
+You can refer to objects you defined in previous code chunks in the body of your document's text. As an example, the standard deviation distance in the `cars` data is `r sd(cars$dist)` kilometers. Note that we can use the command `round(sd(cars$dist), 1)` to round to the first decimal place, `r dist.sd1` kilometers. 
+
