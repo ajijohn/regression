@@ -144,11 +144,36 @@ The age distribution is notable in the study, we can see from the above figure t
 
 
 # Question 2
+
+Perform statistical analyses evaluating an association between serum creatinine and 5 year all-cause mortality by comparing mean creatinine levels across groups defined by vital status at 5 years using linear regression that presumes homoscedasticity. As this problem is directed toward illustrating correspondences between the t test and linear regression, you do not need to provide full statistical inference for this problem. Instead, just answer the following questions.
+
+## (a)
+
+Fit a regression model where the response variable is creatinine level and the predictor variable is an indicator variable for a subject dying within 5 years (i.e., a value of 1 if subject died within 5 years, and a value of 0 if the subject survived at least 5 years).   Provide an interpretation of the intercept and slope of this regression model.
+
 ```{r Q2}
 ### Question 2:
 # note: round() Does not print trailing zeros
-dist.sd1 <- round(sd(cars$dist), digits = 1) 
+plot(data=mri,mri$crt)
 ```
 
-You can refer to objects you defined in previous code chunks in the body of your document's text. As an example, the standard deviation distance in the `cars` data is `r sd(cars$dist)` kilometers. Note that we can use the command `round(sd(cars$dist), 1)` to round to the first decimal place, `r dist.sd1` kilometers. 
+## (b)
+
+Is the regression model you fit a saturated model? Briefly explain why or why not. 
+
+```{r Q2}
+### Question 2:
+# note: round() Does not print trailing zeros
+plot(data=mri,mri$crt)
+```
+
+## (c)
+
+Using the parameter estimates from the regression model, what is the estimate of the mean creatinine level in a population of similar subjects who would die within 5 years? How does this compare to the corresponding estimate from problem 1? If there are any differences, explain the source of the differences.
+
+```{r Q2}
+### Question 2:
+# note: round() Does not print trailing zeros
+plot(data=mri,mri$crt)
+```
 
