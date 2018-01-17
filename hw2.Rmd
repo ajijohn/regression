@@ -30,10 +30,12 @@ What are the sample size, sample mean and sample standard deviation of serum cre
 ### Question 1:
 # Part (a)
 mri <- read.table("data/mri.txt",header=TRUE) 
+mri$deathin5 <- ifelse(mri$obstime <= 365.25 * 5 & mri$death == 1, TRUE, FALSE) 
+mri$death5 <- (mri$obstime < 5*365) & (mri$death == 1)
 #kable(descrip(mri[mri$death==0,'crt']), format = "markdown")
 #kable(summary(cars), format = "markdown")
-kable(mri%>%filter(!is.na(crt) & death==0) %>% 
-        group_by(death) %>%
+kable(mri%>%filter(!is.na(crt) & deathin5==FALSE) %>% 
+        group_by(deathin5) %>%
         summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
         select(c('n','mean','sd')) %>%
         as.data.frame() , format = "markdown")
@@ -48,8 +50,8 @@ What are the sample size, sample mean and sample standard deviation of creatinin
 ```{r Q1b, fig.align='center'}
 # Part (b)
 
-kable(mri%>%filter(!is.na(crt) & death==1) %>% 
-        group_by(death) %>%
+kable(mri%>%filter(!is.na(crt) & deathin5==TRUE) %>% 
+        group_by(deathin5) %>%
         summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
         select(c('n','mean','sd')) %>%
         as.data.frame() , format = "markdown")
@@ -63,9 +65,9 @@ What are the point estimate, the estimated standard error of that point estimate
 ```{r , include=FALSE,fig.align='center'}
 # Part (c)
 
-t.test(mri[mri$death==0,]$crt)
+t.test(mri[mri$deathin5==FALSE,]$crt)
 
-crt_0 <- mri[!is.na(mri$crt) & mri$death==0,]$crt
+crt_0 <- mri[!is.na(mri$crt) & mri$deathin5==FALSE,]$crt
 
 xbar<- mean(crt_0)
 sigma <- sd(crt_0)
@@ -80,7 +82,7 @@ int.s2 <- xbar - e2
 
 ```
 
-Point estimate is 1.0325 mg/dl
+Point estimate is 1.033 mg/dl
 SE is 0.009974404
 95% CI is 1.01 to 1.05
 
@@ -90,9 +92,9 @@ What are the point estimate, the estimated standard error of that point estimate
 ```{r ,include=FALSE, fig.align='center'}
 # Part (d)
 
-t.test(mri[mri$death==1,]$crt)
+t.test(mri[mri$deathin5==TRUE,]$crt)
 
-crt_1 <- mri[!is.na(mri$crt) & mri$death==1,]$crt
+crt_1 <- mri[!is.na(mri$crt) & mri$deathin5==TRUE,]$crt
 
 xbar<- mean(crt_1)
 sigma <- sd(crt_1)
@@ -106,9 +108,9 @@ int.s1 <- xbar - e1
 int.s2 <- xbar - e2
 
 ```
-Point estimate is 1.2060 mg/dl
-SE is 0.01885457
-95% CI is 1.12 to 1.28
+Point estimate is 1.2157 mg/dl
+SE is 0.01918
+95% CI is 1.13 to 1.30
 
 ## (e)
 What are the point estimate and the 95% confidence interval for the difference in creatinine means between a population of similar subjects that survives at least 5 years and a population of similar subjects that dies within 5 years? What is the P value for testing the hypothesis that the two populations have the same mean creatinine level? What conclusions do you reach about a statistically significant association between serum creatinine and 5 year all-cause mortality?
@@ -116,14 +118,14 @@ What are the point estimate and the 95% confidence interval for the difference i
 ```{r , include=FALSE,fig.align='center'}
 # Part (e)
 
-t.test(mri[!is.na(mri$crt)  & (mri$death ==0),]$crt,mri[!is.na(mri$crt) &  (mri$death ==1),]$crt)
+t.test(mri[!is.na(mri$crt)  & (mri$deathin5 ==FALSE),]$crt,mri[!is.na(mri$crt) &  (mri$deathin5 ==TRUE),]$crt)
 
 ```
-The best estimate of the difference, i.e. the point estimate is -0.173515 units ( Survive Sample, Observed to Die Sample.  )
+The best estimate of the difference, i.e. the point estimate is -0.18175 units ( Survive Sample, Observed to Die Sample.  )
 
-95% CI , difference of mean 'crt' between the groups is (-0.25506646 , -0.09196361).
+95% CI , difference of mean 'crt' between the groups is (-0.26927031 , -0.09416079).
 
-p-value is 4.501e-05, and is found to be significant, and we reject our null hypothesis that  two populations have the same mean creatinine level.
+p-value is 7.011e-05, and is found to be significant, and we reject our null hypothesis that the two populations have the same mean creatinine levels.
 
 ## (f)
 Although we did not consider age at the time of enrollment in the questions above, could the association analysis for creatinine level and 5 year all-cause mortality conducted using the t-test potentially be confounded by the age of the subjects at the time of the MRI?  Briefly explain why or why not this is plausible?  Provide any descriptive statistics (e.g. an appropriate table, plot, etc.) giving evidence for or against the association results and conclusions above with the t-test potentially being confounded by age.
@@ -131,11 +133,11 @@ Although we did not consider age at the time of enrollment in the questions abov
 ```{r ,fig.align='center'}
 # Part (e)
 
-boxplot(age~death,mri, main="Age distribution", 
+boxplot(age~deathin5,mri, main="Age distribution", 
   	xlab="5 Year all-cause mortality", ylab="Age (Yrs)",col=topo.colors(2))
 
 legend("topright", inset=.02, title="Groups",
-   c("0-Survived","1"), fill=topo.colors(2), horiz=TRUE, cex=0.8)
+   c("TRUE-Survived","FALSE"), fill=topo.colors(2), horiz=TRUE, cex=0.8)
 
 
 ```
@@ -151,11 +153,13 @@ Perform statistical analyses evaluating an association between serum creatinine 
 
 Fit a regression model where the response variable is creatinine level and the predictor variable is an indicator variable for a subject dying within 5 years (i.e., a value of 1 if subject died within 5 years, and a value of 0 if the subject survived at least 5 years).   Provide an interpretation of the intercept and slope of this regression model.
 
-```{r Q2}
+```{r Q2,include=FALSE}
 ### Question 2:
 # note: round() Does not print trailing zeros
-plot(data=mri,mri$crt)
+lm(data=mri,crt~deathin5)
 ```
+
+Our model came out to be 'crt = 0.18 * death + 1.03
 
 ## (b)
 
@@ -174,6 +178,6 @@ Using the parameter estimates from the regression model, what is the estimate of
 ```{r Q2}
 ### Question 2:
 # note: round() Does not print trailing zeros
-plot(data=mri,mri$crt)
+lm(data=mri,crt~deathin5)
 ```
 
