@@ -265,3 +265,11 @@ Perform statistical analyses evaluating an association between serum creatinine 
 
 ??how to do this , do we use regress from uwIntroStat ?
 
+```{r ,include=FALSE}
+### Question 2:
+# note: round() Does not print trailing zeros
+robustm1 <- regress("mean",crt~deathin5,data=mri)
+robustm1
+```
+
+p-value: 4.296e-05, it is still significant. P-value is different.
