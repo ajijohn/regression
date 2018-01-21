@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = FALSE)
 # Question 1
 Perform a statistical analysis evaluating an association between serum creatinine level and 5 year all-cause mortality by comparing geometric mean serum creatinine levels between groups defined by vital status at 5 years.   In your analysis, allow for heteroscedasticity.  Provide full statistical inference about an association between creatinine and 5 year all-cause mortality.   
 
-```{r Q1a,echo=FALSE,include=FALSE}
+```{r ,echo=FALSE,include=FALSE}
 ### Question 1:
 # Part (a)
 mri <- read.table("data/mri.txt",header=TRUE) 
@@ -67,7 +67,7 @@ Perform a regression analysis evaluating an association between serum creatinine
 ## (a) 
 Provide a brief description of the statistical methods for the model you fit to address the question of an association between creatinine and age.
 
-```{r Q1a}
+```{r}
 ### Question 1:
 # Part (a)
 plot(data=mri,crt~age)
@@ -76,7 +76,7 @@ abline(lm(crt~age, data = mri),col="red")
 ```
 We first do the some exploratory plots to so some look into relationship. From the above figure it looks like there is weak linear relationship. Lets look closely by plotting the residuals. 
 
-```{r Q1a}
+```{r}
 ### Question 1:
 # Part (a)
 agefit <- lm(formula = crt ~ age, data = mri)
@@ -87,7 +87,7 @@ abline(h=0,col="red")
 
 By looking at the residulas, it confirms the same. Lets now look at the linear analysis output.
 
-```{r Q1a,echo=FALSE,include=FALSE}
+```{r,echo=FALSE,include=FALSE}
 ### Question 1:
 # Part (a)
 regress("mean",formula = crt ~ age, data = mri)
@@ -153,7 +153,7 @@ This is not a saturated model, as number of parameters does not equal to number 
 ## (c)
 Provide a scatterplot illustrating the relationship between serum creatinine and age and include in the plot the regression line from your regression analysis.  
 
-```{r , include=true,fig.align='center'}
+```{r , include=TRUE,fig.align='center'}
 # Part (c)
 
 plot(data=mri,crt~age)
@@ -311,7 +311,7 @@ What is the interpretation of the slope?
 
 Ratio of geometric means of CRT between groups differing in  age 1 year.
 
-  exp(β1) = e^0.003667 = 1.003674
+  exponent(beta1) = e^0.003667 = 1.003674
 
 ## (e)
 Provide full statistical inference about an association between serum creatinine and age based on your regression model.
