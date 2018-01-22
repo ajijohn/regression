@@ -1,0 +1,112 @@
+---
+title: "R Notebook- Discussion 2 - Biostatistics"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Censored variable ?
+
+Logistic regression
+
+P(event occuring) P(Yi=1) = pi
+
+odds of events occuring : ratio of prob
+
+odds = pi/(1-pi)
+
+odds ratio = odds event in group 1(one condition - high psa)/ odds event in group 2 (second condition - low psa)
+
+logit(pi) = log(pi/1-pi) = beta 0 + beta 1 Xi
+
+Parameter
+
+log odds for X=0 ;
+
+odds for event for X = x: exp(beta zero + beta 1 *x)
+
+odds of event for X= x+2/offd pf event flr X=x
+
+exp(bo+b1x + b1)/(exp(b0+b1x) = exp(b1)
+
+
+read psa
+read.table('psa.txt',header=T)
+
+#for not in remission and followed up for 24 months
+#1 = true
+#0 - false
+last check in (relpasse)
+$relapsse24 <- ifelse(psa$inrem =="no"& psa$obstime <=24,1,0)
+#docho PSA variable
+psa$high <- ifelse(psa$nadirpsa>=median(psa$nadirpsa),1,0)
+
+#bino - we want to do logistic regression
+mod1<-glm(relapse24~high,family="binomail",data=psa)
+
+summary(mod1)
+
+
+each increment - high psa have log odds of 2.6 units highr on average with low psa
+
+
+null 
+
+log odds = exp(2.6), ratio is 13.5
+95%CI [ exp(1.22),exp(3.98)]
+=[3.40,53.7]
+
+
+sd err * 1.96 +- est
+p-value :0.000219
+
+- not using 
+
+coeff:
+            estimate    Pr(>|z|)
+(intercept) -1.6583    0.002369
+high 2.60        0.000219
+
+est odds of relapse with 24 months ps with above-median psa nadir level are 13.5 times highrt relaive to group of psa with below median psa nadir level. based on 95% ci it wlld be not be unsual to observe an OR between 3.40 and 53.7. With s p-0.000219 
+
+
+
+
+
+mod2<- glm(relapse24~nadirpsa,family="binomail",data=psa)
+
+mod2.pointest <- exp(summary(mod2)$coefficients["nadirpsa","Estimate"])
+mod2.95ci <- exp)
+
+
+psa, 1%lower
+
+log odds same in two groups
+
+
+4% highr to a grou of psa with 1 mg.ml lower . Wih 
+
+
+dicotimize psa ( put a cut point)
+
+log transforn PSA - multoplicative scale instead of additive 
+- effect on multiplicative scale - 
+- questiom 
+
+
+pds$log2_nadirpsa <- log(psa$nadirpsa)/log(2)
+mod3<-glm(relapse24~log2_nadirpsa, data=psa,fainly =bino)
+
+
+
+```{r}
+data <-read.csv("data/dsst.txt", sep="")#read in data
+summary(data$dsst)
+#summarizedsst
+summary(data$mmmse)
+summary(data$age)
+table(data$male)#number of males (0=female, 1=male)
+
+```
+
+
