@@ -55,7 +55,7 @@ t.test(mri[!is.na(mri$crt)  & (mri$deathin5 ==FALSE),]$logcrt,mri[!is.na(mri$crt
 
 Model we got is E[log(crt)|deathin5]=0.005763+0.132212×deathin5.
 
-From linear regression analysis on log transformed creatinine level(CRT) using Huber-White estimates of the standard error, we estimate that between two groups defined by vital status at 5 years, the geometric mean CRT is 14.13% higher in the group which survives in 5 years. A 95% CI suggests that this observation is not unusual(?) if the true relationship between geometric means were such that the group which survives in 5 years geometric mean CRT were between 7.38% and 21.31% higher from the group that dies in 5 years. Because the two-sided P value is P < .0005, we reject the null hypothesis that there is no linear trend in the geometric mean CRT across the two groups.
+From linear regression analysis on log transformed creatinine level(CRT) using Huber-White estimates of the standard error, we estimate that between two groups defined by vital status at 5 years, the geometric mean CRT is 14.13% higher in the group which survives in 5 years. A 95% CI suggests that this observation is not unusual if the true relationship between geometric means were such that the group which survives in 5 years geometric mean CRT were between 7.38% lower and 21.31% higher from the group that dies in 5 years. Because the two-sided P value is P < .0005, we reject the null hypothesis that there is no linear trend in the geometric mean CRT across the two groups.
 
 * Sample size 735
 * Two samples skipped as 'NA' featured in them.
@@ -74,6 +74,8 @@ plot(data=mri,crt~age)
 abline(lm(crt~age, data = mri),col="red")
 
 ```
+
+
 We first do the some exploratory plots to so some look into relationship. From the above figure it looks like there is weak linear relationship. Lets look closely by plotting the residuals. 
 
 ```{r}
@@ -130,7 +132,7 @@ regress("mean",formula = crt ~ age, data = mri)
 
 ```
 
-From linear regression analysis using Huber-White estimates of the standard error, we estimate that for each year difference in age between two populations, the difference in mean CRT is  0.005 points higher in the older population. A 95% CI suggests that this observation is not unusual if the true difference in mean CRT were between 0.000494 and 0.01065 points higher per year difference in age. Because the two sided P value is P < .0005(p-value: 0.03154), we reject the null hypothesis that there is no linear trend in the average CRT across age groups.
+From linear regression analysis using Huber-White estimates of the standard error, we estimate that for each year difference in age between two populations, the difference in mean CRT is  0.005 points higher in the older population. A 95% CI suggests that this observation is not unusual if the true difference in mean CRT were between 0.000494 and 0.01065 points higher per year difference in age. Because the two sided P value is 0.03154, we reject the null hypothesis that there is no linear trend in the average CRT across age groups.
 
 * Two samples skipped as 'NA' featured in them.
 * Units for mean is mg/dl
@@ -276,7 +278,7 @@ regress("mean",formula = logcrt ~ age, data = mri)
 
 ```
 
-We used the linear regression  method to look into association between log transformed CRT and age.
+We fit a linear regression model of log transformed serum creatinine level(CRT) on the age. The estimated slope coefficient and 95% confidence interval were then exponentiated to report the percent change and associated 95% CI.
 
 ## (b)
 
@@ -290,7 +292,7 @@ plot(data=mri,mri$crt)
 
 Our model is E[log(CRT ) | Agei ] = -0.2459+0.003667 × Agei, so it gives the estimates of geometric mean.
 
-70 yr olds - 0.01079 ( Would we use the same units ??) - 1% higher
+70 yr olds - 0.01079 - 1% higher
 80 yr olds - 0.04746 - 4.7% higher
 90 yr olds - 0.08413 - 8.4% higher
 
@@ -341,15 +343,10 @@ exp(10*0.003667) is 1.037 i.e 3.7% higher when the groups differ by 10 years. Th
 ## (g)
 Compare your estimates of geometric mean serum creatinine level in question (b) to estimates of (arithmetic) mean serum creatinine levels for 70, and 80, and 90 year old subject from a linear regression model with serum creatinine levels as the response and age as the predictor, e.g., the regression model for problem 2 above. Briefly discuss any similarities or differences.
 
-Put it in table (if needed)
+| Age    | Geometric Mean  | Arithmetic Mean
+|-----+-------------------+------------------------------+----------+-------------
+| 70    | 1.010848 mg/dl  | 1.03847 mg/dl 
+| 80    | 1.048604 mg/dl | 1.09418 mg/dl 
+| 90     | 1.08777  mg/dl  | 1.14989 mg/dl 
 
-Geometric mean
-70 - 1.010848 mg/dl
-80 - 1.048604 mg/dl
-90 - 1.08777  mg/dl
-
-Regression mean
-
-70 - 1.03847 mg/dl
-80 - 1.09418 mg/dl
-90 - 1.14989 mg/dl
+We see that geometric mean CRT is different than the arithmetic mean, although, slightly lower in all the studied age groups when compared to arithmetic means. 
