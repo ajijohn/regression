@@ -1,0 +1,166 @@
+---
+title: "R Notebook- Discussion 2 - Biostatistics"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+
+
+Y|W 
+
+E[Y| x1,x2.. xn] = b0 + b1x1 + ..... +bnxn
+
+multiple predictors
+
+
+```{r}
+data <-read.csv("data/dsst.txt", sep="")#read in data
+summary(data$dsst)
+#summarizedsst
+summary(data$mmmse)
+summary(data$age)
+table(data$male)#number of males (0=female, 1=male)
+
+```
+
+
+Age and Dsst, adjusting for education
+
+```{r}
+regress(fnctl="mean", formula= dsst~age,data=data)
+
+
+```
+adjust for educayio
+```{r}
+regress(fnctl="mean", formula= dsst~age+educ,data=data)
+
+
+```
+
+f-stat
+
+adjust for educayio
+```{r}
+regress(fnctl="mean", formula= dsst~age+male,data=data)
+
+
+```
+
+2.3 lower than the enales
+
+educ - 8.12 (hold the age steady)
+
+```{r}
+regress(fnctl="mean", formula= dsst~age*male,data=data)
+
+
+```
+
+
+
+
+
+y = b0 + b1 x1 + b2x2 + b3 x1x2
+
+
+x1x2 - interaction
+x2 - gender(0,1)
+x1  - age
+
+
+interpreting inerction terms'
+
+```{r}
+
+#dsst one year diff in age for females
+
+# 0 
+lincom(reg = regress(fnctl="mean", formula= dsst~age*male,data=data),comb = c(0,1,0,0))
+
+
+
+```
+y = b0 + b1 x1 + b2x2 + b3 x1x2
+
+
+
+```{r}
+
+#dsst one year diff in age for males
+# 1 year diff when  
+# 0 
+lincom(reg = regress(fnctl="mean", formula= dsst~age*male,data=data),comb = c(0,1,0,1))
+
+# b0 intercet is 0
+# 1 year in age b1
+# b2 - 
+
+  # b0 + (b1+b3x2)x1 + b2x2
+
+#x1 -age
+#x2 - male
+
+
+```
+
+Check b3 ?
+
+
+
+
+```{r}
+
+# 70 year olds female
+lincom(reg = regress(fnctl="mean", formula= dsst~age*male,data=data),comb = c(1,70,0,70*0))
+
+
+
+
+```
+
+
+```{r}
+
+# 71 year olds female
+lincom(reg = regress(fnctl="mean", formula= dsst~age*male,data=data),comb = c(1,71,0,71*0))
+
+
+
+
+```
+```{r}
+
+# 70 year olds males
+lincom(reg = regress(fnctl="mean", formula= dsst~age*male,data=data),comb = c(1,70,1,70*1))
+
+
+
+
+```
+
+```{r}
+
+# 71 year olds males
+lincom(reg = regress(fnctl="mean", formula= dsst~age*male,data=data),comb = c(1,71,1,71*1))
+
+
+# 71 is for females 
+
+```
+
+
+
+
+#age + educ
+
+
+
+est 1 unit change in age when you have the same edu
+
+
+
+multi linear regress
+
+
