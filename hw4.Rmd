@@ -218,7 +218,7 @@ Provide an interpretation of the slope and the intercept in your logistic regres
 ```{r ,include=FALSE}
 ### Question 2:
 # note: round() Does not print trailing zeros
-regress("mean",formula = logcrt ~ age, data = mri)
+regress("odds",formula = deathin5 ~ crt, data = mri)
 
 
 ```
