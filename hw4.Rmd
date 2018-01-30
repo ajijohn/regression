@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 
 # Question 1
-Perform a regression analysis for evaluating an association between serum creatinine level and 5 year all-cause mortality by comparing the odds of death within 5 years across groups defined by whether the subjects have “high”  or “low” creatinine levels, where serum creatinine levels greater than 1.2 are considered to be “high”, (i.e., “high” corresponds to  creatinine > 1.2 mg/dl and “low” corresponds to creatinine ≤ 1.2 mg/dl ).  In your logistic regression model, use an indicator of death within 5 years as the  response, and an indicator of high serum creatinine level as the predictor. (Only provide a formal report of inference when asked to.) 
+Perform a regression analysis for evaluating an association between serum creatinine level and 5 year all-cause mortality by comparing the odds of death within 5 years across groups defined by whether the subjects have “high”  or “low” creatinine levels, where serum creatinine levels greater than 1.2 are considered to be “high”, (i.e., “high” corresponds to  creatinine > 1.2 mg/dl and “low” corresponds to creatinine less than or equal 1.2 mg/dl ).  In your logistic regression model, use an indicator of death within 5 years as the  response, and an indicator of high serum creatinine level as the predictor. (Only provide a formal report of inference when asked to.) 
 
 ```{r ,echo=FALSE,include=FALSE}
 ### Question 1:
@@ -96,7 +96,7 @@ summary(logiscrtl)
  
 ```
 
-Odds of dying within 5 years for subjects with low creatinine levels is e-1.8567=  6.402573
+Odds of dying within 5 years for subjects with low creatinine levels is e-1.8567=6.402573
 
 Probability of dying within 5 years for subjects with low creatinine levels is 0.8649118.
 
@@ -215,14 +215,47 @@ Perform a regression analysis to evaluate  an association between odds of death 
 
 Provide an interpretation of the slope and the intercept in your logistic regression model.
 
-```{r ,include=FALSE}
+```{r ,echo=FALSE, include=FALSE}
 ### Question 2:
 # note: round() Does not print trailing zeros
 regress("odds",formula = deathin5 ~ crt, data = mri)
 
+#Call:
+#regress(fnctl = "odds", formula = deathin5 ~ crt, data = mri)
+
+#Deviance Residuals: 
+#    Min       1Q   Median       3Q      Max  
+#-1.0917  -0.5964  -0.5492  -0.4643   2.2837  
+
+#Coefficients:
+
+#Raw Model:
+#                 Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+#[1] Intercept     -3.605     0.4012    0.4008            80.89 1  < 0.00005
+#[2] crt            1.789     0.3398    0.3325            28.97 1  < 0.00005
+
+#Transformed Model:
+#                 e(Est)    e(95%L)   e(95%H)         F stat    df Pr(>F)   
+#[1] Intercept     0.02719   0.01238   0.05973            80.89 1  < 0.00005
+#[2] crt            5.986     3.116     11.50             28.97 1  < 0.00005
+
+#(Dispersion parameter for binomial family taken to be 1)
+
+#    Null deviance: 656.75  on 732  degrees of freedom
+#Residual deviance: 624.70  on 731  degrees of freedom
+#  (2 observations deleted due to missingness)
+#AIC: 628.7
+
+#Number of Fisher Scoring iterations: 4
 
 ```
+The model we get is log odds of DeathIn5 = -3.605 + 1.789 * CRT
 
+Intercept, when predictor is 0(Creatinine level) – Found by exponentiation of the intercept from the logistic regression: exp(b0) =  0.02718744
+
+Odds ratio between groups differing in the value of the predictor by 1 unit–Found by exponentiation of the slope from the logistic regression: exp(b1) = 10.66981
+
+* Two rows deleted because of NA
 
 ## (b)
 Give full inference for an association  between 5 year all-cause mortality and  serum creatinine levels from your logistic regression model. 
@@ -234,7 +267,7 @@ Give full inference for an association  between 5 year all-cause mortality and  
 ```
 
 eg
-From logistic regression analysis, we estimate that for two groups that differ by one year in age, the odds of stroke is  3.4% higher in the older group, though this estimate is not statistically significant. A 95% CI suggests that this observation is not unusual if a group that is one year older might have odds of stroke that was anywhere from 0.8% lower or 7.8% higher than the younger group.” A two-sided p value of 0.113 suggests that we can not with high confidence reject the null hypothesis that the odds of stroke are not associated with age. 
+From logistic regression analysis, we estimate that for two groups that differ by one unit(mg/dl) in CRT, the odds of death in 5 years is  10.6% higher in the group that differs by 1 unit(mg/dl), also, this estimate is found to be statistically significant. A 95% CI suggests that this observation is not unusual if a group that is one year older might have odds of stroke that was anywhere from 3.1% lower or 11.5% higher than the group that has a higher CRT level . A two-sided p value of 0.00005 suggests that we can with high confidence reject the null hypothesis that the odds of death in 5 years is not associated with CRT. 
 
 
 
