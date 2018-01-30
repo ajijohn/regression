@@ -136,20 +136,67 @@ How would your answers to part b change if you were instead asked fit a logistic
 
 # Question 2
 In question 1, a prospective association analysis was conducted where we investigated differences in the distribution of death within 5 years across groups defined by serum creatinine level.  In this question, you will now conduct a retrospective analysis and fit a logistic regression model for the distribution of serum creatinine across groups defined by vital status at 5 years.  In your retrospective logistic regression model,  use an indicator for high serum creatinine level as the response, and indicator of death within 5 years as the predictor.  (Only provide a formal report of inference when asked to.)
+
+
+```{r,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+logiscrtl2 <- glm(crtind~deathin5,family = binomial,data = mri)
+summary(logiscrtl2)
+
+#Call:
+#glm(formula = crtind ~ deathin5, family = binomial, data = mri)
+
+#Deviance Residuals: 
+#    Min       1Q   Median       3Q      Max  
+#-0.9508  -0.6576  -0.6576  -0.6576   1.8098  
+
+#Coefficients:
+#             Estimate Std. Error z value Pr(>|z|)    
+#(Intercept)   -1.4214     0.1021 -13.917  < 2e-16 ***
+#deathin5TRUE   0.8618     0.2148   4.012 6.03e-05 ***
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#(Dispersion parameter for binomial family taken to be 1)
+
+#    Null deviance: 776.83  on 732  degrees of freedom
+#Residual deviance: 761.57  on 731  degrees of freedom
+#  (2 observations deleted due to missingness)
+#AIC: 765.57
+
+#Number of Fisher Scoring iterations: 4
+
+#> exp(-1.4214)
+#[1] 0.2413759
+#> exp(0.8618)
+#[1] 2.367418
  
+```
+
 ## (a) 
 Provide an interpretation of the slope and the intercept in your regression model in terms of the response variable (indicator of high creatinine level) and the predictor variable (indicator of death within 5 years).  
 
+Our model here is  log odds = -1.4214 + 0.8618  * Deathin5i
+
+when predictor is 0(Does not die in 5 years) –Found by exponentiation of the intercept from the logistic regression: exp(b0) = 0.2413759
+
+Odds ratio between groups differing in the value of the predictor by 1 unit–Found by exponentiation of the slope from the logistic regression: exp(b1) = 2.367418
+
+
 ```{r}
 ### Question 1:
-# Part (a)
-plot(data=mri,crt~age)
-abline(lm(crt~age, data = mri),col="red")
 
 ```
 
 ## (b)
 From the logistic regression model,  what is the estimated odds of high creatinine level for subjects who die within 5 years?   What is the estimated probability of having high  serum creatinine for subjects who die within 5 years.
+
+```{r}
+### Question 1:
+
+```
+
 
 ## (c)
 From the logistic regression model, what is the estimated odds of having a high creatinine level for subjects who survive at least 5 years?   What is the estimated probability of having a high serum creatinine for subjects who survive at least 5 years.
