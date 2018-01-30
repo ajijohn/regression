@@ -55,7 +55,9 @@ Yes, it is a saturated model, as number of parameters equal to number of coeffic
 
 Provide an interpretation of the slope and the intercept in your regression model  in terms of the response variable (indicator of death within 5 years) and the predictor variable (high  creatinine).
 
-Odds when predictor is 0–Found by exponentiation of the intercept from the logistic regression: exp(b0)•Odds ratio between groups differing in the value of the predictor by 1 unit–Found by exponentiation of the slope from the logistic regression: exp(b1)
+Odds when predictor is 0 –Found by exponentiation of the intercept from the logistic regression: exp(b0)
+
+Odds ratio between groups differing in the value of the predictor by 1 unit – Found by exponentiation of the slope from the logistic regression: exp(b1)
 
 ## (c)
 From the logistic regression model, what is the estimated odds of dying within 5 years for subjects with low creatinine levels.   What is the estimated probability of dying within 5 years from the logistic regression model for subjects with low creatinine levels ? 
@@ -93,14 +95,45 @@ summary(logiscrtl)
 #[1] 6.402573
 #> 6.402573/(1+6.402573)
 #[1] 0.8649118
+
+#regress(fnctl = "odds", formula = deathin5 ~ crtind, data = mri)
+
+
+#Call:
+#regress(fnctl = "odds", formula = deathin5 ~ crtind, data = mri)
+
+#Deviance Residuals: 
+#    Min       1Q   Median       3Q      Max  
+#-0.7933  -0.5387  -0.5387  -0.5387   2.0009  
+
+#Coefficients:
+
+#Raw Model:
+#                 Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+#[1] Intercept     -1.857     0.1225    0.1227           228.96 1  < 0.00005
+#[2] crtind         0.8618    0.2148    0.2151            16.05 1     1e-04 
+
+#Transformed Model:
+#                 e(Est)    e(95%L)   e(95%H)         F stat    df Pr(>F)   
+#[1] Intercept      0.1562    0.1228    0.1987           228.96 1  < 0.00005
+#[2] crtind         2.367     1.552     3.611             16.05 1     1e-04 
+
+#(Dispersion parameter for binomial family taken to be 1)
+
+#    Null deviance: 656.75  on 732  degrees of freedom
+#Residual deviance: 641.50  on 731  degrees of freedom
+#  (2 observations deleted due to missingness)
+#AIC: 645.5
+
+#Number of Fisher Scoring iterations: 4
  
 ```
 
-Odds of dying within 5 years for subjects with low creatinine levels is e-1.8567=6.402573
+Odds of dying within 5 years for subjects with low creatinine levels is e-1.8567=0.1562
 
-Probability of dying within 5 years for subjects with low creatinine levels is 0.8649118.
+Probability of dying within 5 years for subjects with low creatinine levels is 0.1350977.
 
- - Using  prob= odds / (1+odds):  6.402573 / (1+6.402573)= 0.8649118.
+ - Using  prob= odds / (1+odds):  0.1562 / (1+0.1562)= 0.1350977.
 
 ## (d)
 For the subset of subjects in the sample with low serum creatinine, calculate the proportion who died within 5 years. Also calculate the sample odds of dying within 5 years for subjects with low creatinine levels.  Compare the sample proportion and sample odds  to the corresponding estimates in part 1c from the logistic regression model? Briefly explain any similarities or differences.
@@ -118,12 +151,23 @@ Total with Low CRT - 165
           -----------------------
           
           Odds - 1- (44+121)/121 = 1- 1.36 = .36
+          (OR)
+          44/121  - 0.3636364
 
 ## (e)
 From the logistic regression model, what is the estimated odds of dying within 5 years for subjects with high creatinine levels.   What is the estimated probability of dying within 5 years from the logistic regression model for subjects with high creatinine levels ? 
 
+Odds = 0.1562 * 2.367 = 0.3697254
+- Using  prob= odds / (1+odds): 0.3697254/(1+0.3697254) = 0.2699267
+
+
+#### Can answer the question probability of not dying in 5 given high creatnine levels
+
 ## (f)
 For the subset of subjects in the sample with high creatinine levels, calculate the proportion who died within 5 years. Also calculate the sample odds of dying within 5 years for subjects with high creatinine levels.  Compare the sample proportions (or probabilities) and sample odds  to the corresponding estimates in part 1e from the logistic regression model? Briefly explain any similarities or differences.
+
+
+
 
 ## (g)
 Give full inference regarding an association  between 5 year all-cause mortality and serum creatinine levels from the logistic regression model with  indicator of death within 5 years as the response and indicator of high creatinine level as the predictor.  
@@ -195,11 +239,30 @@ From the logistic regression model,  what is the estimated odds of high creatini
 ```{r}
 ### Question 1:
 
+#exp(-1.4214 + (0.8618  * 1))
+#[1] 0.5714376
+
+# 0.5714376 / (1+0.5714376)
 ```
 
 
+Odds is 0.57
+Using  prob = odds / (1+odds): 0.36364
+
 ## (c)
 From the logistic regression model, what is the estimated odds of having a high creatinine level for subjects who survive at least 5 years?   What is the estimated probability of having a high serum creatinine for subjects who survive at least 5 years.
+
+```{r}
+
+#exp(-1.4214 + (0.8618  * 0))
+#[1] 0.2413759
+
+# 0.2413759 / (1+0.2413759)
+# [1] 0.1944422
+```
+
+Odds is 0.2413759
+Using  prob= odds / (1+odds): 0.19
 
 ## (d)
 Give full inference regarding an association  between 5 year all-cause mortality and serum creatinine levels from the logistic regression model with  indicator of high serum creatinine as the response and an indicator of death within 5 years as the predictor.  
@@ -247,6 +310,12 @@ regress("odds",formula = deathin5 ~ crt, data = mri)
 #AIC: 628.7
 
 #Number of Fisher Scoring iterations: 4
+
+
+#> exp(-3.605)
+#[1] 0.02718744
+#> exp(2.367418)
+#[1] 10.66981
 
 ```
 The model we get is log odds of DeathIn5 = -3.605 + 1.789 * CRT
