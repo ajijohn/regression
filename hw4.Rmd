@@ -19,7 +19,13 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
+# Retrospective highcrt ~ deathin5
 
+   ## odds for highcrt for those who are alive in 5 
+   
+# Prospective deathin5 ~ highcrt
+    ## odds for those who are dead in 5 /vs alive
+    
 # Question 1
 Perform a regression analysis for evaluating an association between serum creatinine level and 5 year all-cause mortality by comparing the odds of death within 5 years across groups defined by whether the subjects have “high”  or “low” creatinine levels, where serum creatinine levels greater than 1.2 are considered to be “high”, (i.e., “high” corresponds to  creatinine > 1.2 mg/dl and “low” corresponds to creatinine less than or equal 1.2 mg/dl ).  In your logistic regression model, use an indicator of death within 5 years as the  response, and an indicator of high serum creatinine level as the predictor. (Only provide a formal report of inference when asked to.) 
 
@@ -31,7 +37,7 @@ mri$deathin5 <- ifelse(mri$obstime <= 365.25 * 5 & mri$death == 1, TRUE, FALSE)
 mri$death5 <- (mri$obstime < 5*365) & (mri$death == 1)
 
 #create high/low for crt
-
+# 1 - high , 0 - low
 mri$crtind <- ifelse(mri$crt>1.2,1,0)
 mri$logcrt <- log(mri$crt)
 #kable(descrip(mri[mri$death==0,'crt']), format = "markdown")
@@ -55,7 +61,7 @@ Yes, it is a saturated model, as number of parameters equal to number of coeffic
 
 Provide an interpretation of the slope and the intercept in your regression model  in terms of the response variable (indicator of death within 5 years) and the predictor variable (high  creatinine).
 
-Odds when predictor is 0 –Found by exponentiation of the intercept from the logistic regression: exp(b0)
+Odds when predictor is 0 – Found by exponentiation of the intercept from the logistic regression: exp(b0)
 
 Odds ratio between groups differing in the value of the predictor by 1 unit – Found by exponentiation of the slope from the logistic regression: exp(b1)
 
@@ -138,21 +144,21 @@ Probability of dying within 5 years for subjects with low creatinine levels is 0
 ## (d)
 For the subset of subjects in the sample with low serum creatinine, calculate the proportion who died within 5 years. Also calculate the sample odds of dying within 5 years for subjects with low creatinine levels.  Compare the sample proportion and sample odds  to the corresponding estimates in part 1c from the logistic regression model? Briefly explain any similarities or differences.
 
-Total with Low CRT - 165
-           Died in 5 years - 44
-           Proportion who died in 5 years - 44/165 = 0.2666667
+# # 1 - high , 0 - low
+
+Total with Low CRT - 572
+           Died in 5 years - 77
+           Proportion who died in 5 years - 77/572 = 0.1346154
            
            
            -----------------------
                   |  1    |  0
            -----------------------
-  Low CRT         |  44   |  121
+  Low CRT         |  77   |  495
   
           -----------------------
           
-          Odds - 1- (44+121)/121 = 1- 1.36 = .36
-          (OR)
-          44/121  - 0.3636364
+          Odds - 77/495  - 0.1555556
 
 ## (e)
 From the logistic regression model, what is the estimated odds of dying within 5 years for subjects with high creatinine levels.   What is the estimated probability of dying within 5 years from the logistic regression model for subjects with high creatinine levels ? 
@@ -166,17 +172,39 @@ Odds = 0.1562 * 2.367 = 0.3697254
 ## (f)
 For the subset of subjects in the sample with high creatinine levels, calculate the proportion who died within 5 years. Also calculate the sample odds of dying within 5 years for subjects with high creatinine levels.  Compare the sample proportions (or probabilities) and sample odds  to the corresponding estimates in part 1e from the logistic regression model? Briefly explain any similarities or differences.
 
+# # 1 - high , 0 - low
 
+Total with high CRT - 165
+           Died in 5 years - 44
+           Proportion who died in 5 years - 44/165 = 0.2666667
+           
+           
+           -----------------------
+                  |  1    |  0
+           -----------------------
+  High CRT        |  44   |  121
+  
+          -----------------------
+          
+          Odds - 1- (44+121)/121 = 1- 1.36 = .36
+          (OR)
+          44/121  - 0.3636364
 
 
 ## (g)
 Give full inference regarding an association  between 5 year all-cause mortality and serum creatinine levels from the logistic regression model with  indicator of death within 5 years as the response and indicator of high creatinine level as the predictor.  
 
+#### explanation of slope -  odds ratio
+
+
 ## (h)
 How would your answers to part b change if you were instead asked to fit a logistic regression model with indicator of death within 5 years as the response variable, but with indicator of low serum creatinine level as the predictor?  Would the statistical evidence for an association between 5 year mortality and serum creatinine levels change?  Briefly explain.
 
+
 ## (i)
-How would your answers to part b change if you were instead asked fit a logistic regression model with indicator of surviving  at least 5 years as the response variable  and  indicator of high creatinine level as the predictor?  Would the statistical evidence for an association between 5 year mortality and serum creatinine levels change?  Briefly explain.     
+How would your answers to part b change if you were instead asked fit a logistic regression model with indicator of surviving  at least 5 years as the response variable  and  indicator of high creatinine level as the predictor?  Would the statistical evidence for an association between 5 year mortality and serum creatinine levels change?  Briefly explain.   
+
+
 
 # Question 2
 In question 1, a prospective association analysis was conducted where we investigated differences in the distribution of death within 5 years across groups defined by serum creatinine level.  In this question, you will now conduct a retrospective analysis and fit a logistic regression model for the distribution of serum creatinine across groups defined by vital status at 5 years.  In your retrospective logistic regression model,  use an indicator for high serum creatinine level as the response, and indicator of death within 5 years as the predictor.  (Only provide a formal report of inference when asked to.)
