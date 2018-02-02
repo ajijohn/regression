@@ -17,14 +17,15 @@ library(tidyverse)
 library(uwIntroStats)
 knitr::opts_chunk$set(echo = FALSE)
 
-```
-
 # Retrospective highcrt ~ deathin5
 
    ## odds for highcrt for those who are alive in 5 
    
 # Prospective deathin5 ~ highcrt
     ## odds for those who are dead in 5 /vs alive
+```
+
+
     
 # Question 1
 Perform a regression analysis for evaluating an association between serum creatinine level and 5 year all-cause mortality by comparing the odds of death within 5 years across groups defined by whether the subjects have “high”  or “low” creatinine levels, where serum creatinine levels greater than 1.2 are considered to be “high”, (i.e., “high” corresponds to  creatinine > 1.2 mg/dl and “low” corresponds to creatinine less than or equal 1.2 mg/dl ).  In your logistic regression model, use an indicator of death within 5 years as the  response, and an indicator of high serum creatinine level as the predictor. (Only provide a formal report of inference when asked to.) 
@@ -63,9 +64,9 @@ Yes, it is a saturated model, as number of parameters equal to number of coeffic
 
 Provide an interpretation of the slope and the intercept in your regression model  in terms of the response variable (indicator of death within 5 years) and the predictor variable (high  creatinine).
 
-Odds when predictor is 0 – Found by exponentiation of the intercept from the logistic regression: exp(b0)
+Odds when predictor is 0 – Found by exponentiation of the intercept from the logistic regression: exp(b0) - 0.1561866
 
-Odds ratio between groups differing in the value of the predictor by 1 unit – Found by exponentiation of the slope from the logistic regression: exp(b1)
+Odds ratio between groups differing in the value of the predictor by 1 unit (i.e groups defined by CRT levels) – Found by exponentiation of the slope from the logistic regression: exp(b1) - 2.3673469
 
 ## (c)
 From the logistic regression model, what is the estimated odds of dying within 5 years for subjects with low creatinine levels. What is the estimated probability of dying within 5 years from the logistic regression model for subjects with low creatinine levels ? 
@@ -145,68 +146,87 @@ Probability of dying within 5 years for subjects with low creatinine levels is 0
 
 ## (d)
 For the subset of subjects in the sample with low serum creatinine, calculate the proportion who died within 5 years. Also calculate the sample odds of dying within 5 years for subjects with low creatinine levels.  Compare the sample proportion and sample odds  to the corresponding estimates in part 1c from the logistic regression model? Briefly explain any similarities or differences.
+```{r}
+### Question 1:
+#### Can answer the question probability of not dying in 5 given high creatnine levels
 
 # # 1 - high , 0 - low
 
-Total with Low CRT - 572
-           Died in 5 years - 77
-           Proportion who died in 5 years - 77/572 = 0.1346154
+#Total with Low CRT - 572
+#           Died in 5 years - 77
+#           Proportion who died in 5 years - 77/572 = 0.1346154
            
            
-           -----------------------
-                  |  1    |  0
-           -----------------------
-  Low CRT         |  77   |  495
+#           -----------------------
+#                  |  1    |  0
+#           -----------------------
+#  Low CRT         |  77   |  495
   
-          -----------------------
+#          -----------------------
           
-          Odds - 77/495  - 0.1555556
+#          Odds - 77/495  - 0.1555556
           
+           
+```
+
+Proportion who died in 5 years - 0.13
+Odds - .15
+
 Compared to 1c , it is the same because it is a saturated model.      
 
 ## (e)
 From the logistic regression model, what is the estimated odds of dying within 5 years for subjects with high creatinine levels.   What is the estimated probability of dying within 5 years from the logistic regression model for subjects with high creatinine levels ? 
 
+```{r}
+### Question 1:
+#### Can answer the question probability of not dying in 5 given high creatnine levels
+
+```
 Odds = 0.1562 * 2.367 = 0.3697254
 - Using  prob= odds / (1+odds): 0.3697254/(1+0.3697254) = 0.2699267
 
 
-#### Can answer the question probability of not dying in 5 given high creatnine levels
-
 ## (f)
 For the subset of subjects in the sample with high creatinine levels, calculate the proportion who died within 5 years. Also calculate the sample odds of dying within 5 years for subjects with high creatinine levels.  Compare the sample proportions (or probabilities) and sample odds  to the corresponding estimates in part 1e from the logistic regression model? Briefly explain any similarities or differences.
 
+```{r}
+### Question 1:
+
 # # 1 - high , 0 - low
 
-Total with high CRT - 165
-           Died in 5 years - 44
-           Proportion who died in 5 years - 44/165 = 0.2666667
+#Total with high CRT - 165
+#           Died in 5 years - 44
+#           Proportion who died in 5 years - 44/165 = 0.2666667
            
            
-           -----------------------
-                  |  1    |  0
-           -----------------------
-  High CRT        |  44   |  121
+#           -----------------------
+#                  |  1    |  0
+#           -----------------------
+#  High CRT        |  44   |  121
   
-          -----------------------
+#          -----------------------
           
-          Odds - 1- (44+121)/121 = 1- 1.36 = .36
-          (OR)
-          44/121  - 0.3636364
+#          Odds - 1- (44+121)/121 = 1- 1.36 = .36
+#          (OR)
+#          44/121  - 0.3636364
+```
 
+Proportion who died in 5 years - 0.26
+Odds of dying in 5 years - .36
+
+It is similar to part 1e because we have a saturated regression model.
 
 ## (g)
 Give full inference regarding an association  between 5 year all-cause mortality and serum creatinine levels from the logistic regression model with  indicator of death within 5 years as the response and indicator of high creatinine level as the predictor.  
 
-#### TODO Methods
 
-#### explanation of slope -  odds ratio
+From logistic regression analysis, we estimate that for two groups that differed by their CRT level, the odds of dying in 5 years is 136% higher than in the group that had low CRT level, also, this estimate is found to be statistically significant. A 95% CI suggests that this observation is not unusual if a group that differs by CRT level might have odds of dying that was anywhere from 55% lower or 261% higher than the group that had low CRT level. A two-sided p value of 0.00001 suggests that we can with high confidence reject the null hypothesis that the odds of dying in 5-years is not associated with high CRT level. 
 
 
 ## (h)
 How would your answers to part b change if you were instead asked to fit a logistic regression model with indicator of death within 5 years as the response variable, but with indicator of low serum creatinine level as the predictor?  Would the statistical evidence for an association between 5 year mortality and serum creatinine levels change?  Briefly explain.
 
-# # 1 - high , 0 - low
+
 
 ```{r,echo=FALSE,include=FALSE}
 ### Question 1:
@@ -219,20 +239,21 @@ prob1h0
 
 #low( set up on x-axis)/high(other option)
 
-
-```
-
 ### deathin5 ~ crtind == 0 
 
-(Exponentiated)
-0.3697 - Intercept
-0.4224 - Slope
+#(Exponentiated)
+#0.3697 - Intercept
+#0.4224 - Slope
+
+# # 1 - high , 0 - low
+```
+
 
 Odds when predictor is 0 – Found by exponentiation of the intercept from the logistic regression: exp(b0) i.e .36. It means the odds of a person dying in 5 years is 36% for a person with High CRT.
 
-Odds ratio between groups differing in the value of the predictor by 1 unit – Found by exponentiation of the slope from the logistic regression: exp(b1) - 0.4224
+Odds ratio between groups differing in the value of the predictor by 1 unit (Low CRT/ high CRT) – Found by exponentiation of the slope from the logistic regression: exp(b1) - 0.4224
 
-Here, it is in comparision to the group with high CRT , so Odds of Low CRT/ high CRT is .42 i.e. .58 times less likely than a person with low CRT.
+Here, it is in comparision to the group with high CRT , so odds  (Low CRT/ high CRT) is .42 i.e. .42 times less likely than a person with low CRT.
 
 
 
@@ -347,17 +368,21 @@ Odds is 0.2413759
 Using  prob= odds / (1+odds): 0.19
 
 ## (d)
-Give full inference regarding an association  between 5 year all-cause mortality and serum creatinine levels from the logistic regression model with  indicator of high serum creatinine as the response and an indicator of death within 5 years as the predictor.  
+Give full inference regarding an association  between 5 year all-cause mortality and serum creatinine levels from the logistic regression model with indicator of high serum creatinine as the response and an indicator of death within 5 years as the predictor.  
 
-### TODO - Put methods
+
+From logistic regression analysis, we estimate that for two groups that differed by their 5 year all-cause mortality, the odds of having high CRT is 136% higher than in the group that survived at the end of years, also, this estimate is found to be statistically significant. A 95% CI suggests that this observation is not unusual if a group that differed by 5-year all-cause mortality might have odds of high CRT that was anywhere from 55% lower or 261% higher than the group that survived at the end of 5 years. A two-sided p value of 0.00001 suggests that we can with high confidence reject the null hypothesis that the odds of having a hight CRT is not associated with 5 year all-cause mortality.  
 
 ## (e)
 Compare the association results in part 2d from the retrospective logistic model to the association results in part 1g from the prospective logistic regression model.  Briefly describe any similarities or differences.  
 
 
+The results are similar in a sense that the group which has higher CRT is found to be most likely not to survive at the end of 5 years.
+
 # Question 3
 
 Perform a regression analysis to evaluate  an association between odds of death within 5 years and   the continuous measure of serum creatinine levels (i.e., do not use a dichotomized variable for serum creatinine levels in this analysis).  
+
 ## (a)
 
 Provide an interpretation of the slope and the intercept in your logistic regression model.
@@ -404,9 +429,9 @@ regress("odds",formula = deathin5 ~ crt, data = mri)
 ```
 The model we get is log odds of DeathIn5 = -3.605 + 1.789 * CRT
 
-Intercept, when predictor is 0(Creatinine level) – Found by exponentiation of the intercept from the logistic regression: exp(b0) =  0.02718744
+Intercept, when predictor is 0 (Creatinine level) – Found by exponentiation of the intercept from the logistic regression: exp(b0) =  0.02718744
 
-Odds ratio between groups differing in the value of the predictor by 1 unit–Found by exponentiation of the slope from the logistic regression: exp(b1) = 5.98
+Odds ratio between groups differing in the value of the predictor by 1 unit (mg/dl) –Found by exponentiation of the slope from the logistic regression: exp(b1) = 5.98
 
 
 * Two rows deleted because of NA
@@ -414,7 +439,6 @@ Odds ratio between groups differing in the value of the predictor by 1 unit–Fo
 ## (b)
 Give full inference for an association  between 5 year all-cause mortality and  serum creatinine levels from your logistic regression model. 
 
-## To DO - Put methods
 
 ```{r,include=FALSE}
 ### Question 2:
@@ -422,8 +446,7 @@ Give full inference for an association  between 5 year all-cause mortality and  
 #(e-.00006242 , e0.007396 ) = (1.051,1.056)
 ```
 
-eg
-From logistic regression analysis, we estimate that for two groups that differ by one unit(mg/dl) in CRT, the odds of death in 5 years is  498% higher in the group that differs by 1 unit(mg/dl), also, this estimate is found to be statistically significant. A 95% CI suggests that this observation is not unusual if a group that is one year older might have odds of stroke that was anywhere from 3.1% lower or 11.5% higher than the group that has a higher CRT level. A two-sided p value of 0.00005 suggests that we can with high confidence reject the null hypothesis that the odds of death in 5 years is not associated with CRT. 
+From logistic regression analysis, we estimate that for two groups that differ by one unit(mg/dl) in CRT, the odds of death in 5 years is  498% higher in the group that differs by 1 unit(mg/dl), also, this estimate is found to be statistically significant. A 95% CI suggests that this observation is not unusual if a group that is one unit(mg/dl) higher might have odds of death in 5 years that was anywhere from 210% lower or 1049% higher than the group that has a higher CRT level. A two-sided p value of 0.00005 suggests that we can with high confidence reject the null hypothesis that the odds of death in 5 years is not associated with CRT. 
 
 
 
