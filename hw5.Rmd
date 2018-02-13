@@ -140,7 +140,7 @@ Questions 3 and 4 below investigate associations between serum cholesterol level
 #Body Mass Index is a simple calculation using a person’s height and weight. The formula is BMI = kg/m2 where kg is a person’s weight in kilograms and m2 is their height in metres squared.
 # 1 cm2 = 0.0001 m2
 
- mri$bmi <- (mri$weight/2.2) / (mri$height / 100)^2
+ mri$bmi <- round((mri$weight/2.2) / (mri$height / 100)^2)
 
 logiscrtl2 <- glm(crtind~deathin5,family = binomial,data = mri)
 summary(logiscrtl2)
@@ -192,18 +192,64 @@ mri %>% ggplot(aes(bmi)) + geom_histogram(binwidth = 5)
 ## (b)
 Provide suitable descriptive statistics for serum creatinine levels, age, sex, and BMI. 
 
-#todo # Male female and Total
-```{r}
-### Question 1:
 
-#exp(-1.4214 + (0.8618  * 1))
-#[1] 0.5714376
+```{r,include=TRUE}
 
-# 0.5714376 / (1+0.5714376)
+cont.summary <- function(x, digits=1)
+  {
+   fmt <-paste0("%0.", digits, "f")
+   m <-mean(x, na.rm = TRUE)
+   m <-sprintf(fmt = fmt, m)
+   s <-sd(x, na.rm = TRUE)
+   s <-sprintf(fmt = fmt, s)
+   mini <-min(x, na.rm = TRUE)
+   maxi <-max(x, na.rm = TRUE)
+   paste0(m, " (", s, "); ", mini, "-", maxi)
+}
+
+disc.summary <- function(x, digits=1)
+{
+  fmt <-paste0("%0.", digits, "f")
+  pct <-mean(x, na.rm = TRUE) * 100
+  pct <-sprintf(fmt = fmt, pct)
+  paste0(pct, "%")
+}
+# names of continuous variables
+cont.covars <-c("age", "bmi")
+disc.covars <-c()
+
+ #Create columns for table 1, stratified by sex
+
+tab1col1 <-c(paste0("n = ",length(mri[mri$death5 == 1,]$ptid)),
+             cont.summary(mri[mri$male == 1, "crt"]),
+             apply(mri[mri$male == 1, cont.covars], 2, cont.summary),
+             apply(mri[mri$male == 1, disc.covars], 2, disc.summary))
+
+tab1col2 <-c(paste0("n = ",length(mri[mri$death5 == 0,]$ptid)),
+             cont.summary(mri[mri$male == 0, "crt"]),
+             apply(mri[mri$male == 0, cont.covars], 2, cont.summary),
+             apply(mri[mri$male == 0, disc.covars], 2, disc.summary))
+
+tab1col3 <-c(paste0("n = ",length(mri$ptid)),
+             cont.summary(mri[, "crt"]),
+             apply(mri[, cont.covars], 2, cont.summary),
+             apply(mri[, disc.covars], 2, disc.summary))
+
+
+
+tab1names <-c("Sample size","CRTs^1^","Age (years)^1^","BMI (kg/mm)^1^")
+
+tab1 <-cbind(tab1names, tab1col1, tab1col2, tab1col3)
+
+tab1col.names <-c("Variable", "Male", "Female", "All subjects")
+
+knitr::kable(tab1, row.names = FALSE, col.names = tab1col.names)
 ```
 
 
 
+
+**^1^ mean (sd); min-max are reported**
 
 
 # Question 3
@@ -251,21 +297,93 @@ No, lines are not parallel for each bmi group
 ## (e)
 Perform an analysis to determine whether mean serum creatinine levels differ across sex groups. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
 
+```{r,include=FALSE}
+t.test(mri[which(mri$male==1),]$crt,mri[which(mri$male==0),]$crt,
+       alternative = c("two.sided") ,conf.level = 0.95,var.equal = FALSE)
+```
+
+Using t.test with unequal variance setting we find that it is not equal i.e. they differ across the sex groups. The p-value we find is < 0.05, and is found to be significant.
+
+Alternatively, doing linear regression
+
 
 ## (f)
 Perform an analysis to determine whether there is a linear trend in mean serum creatinine levels by BMI. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association. 
 
+### Question 2:
+# note: round() Does not print trailing zeros
+
+
+```{r,include=TRUE}
+mri%>% ggplot(aes(bmi,crt)) + geom_point()  +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+
+
+```{r,include=FALSE}
+regress(fnctl = "mean", formula = crt ~ bmi, data = mri)
+```
+
+We find that slope is 3.18 * 10^-3 which at p-value of .3113 is not significant.
+
+
 ## (g)
 Perform an analysis to determine whether mean serum creatinine levels differ across sex groups after adjustment for BMI. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
+
+```{r,include=FALSE}
+regress(fnctl = "mean", formula = crt ~ bmi + male, data = mri)
+
+
+#               Estimate    Naive SE   Robust SE         95%L        95%H  t value     Pr(>|t|)
+#(Intercept) 0.828733590 0.063063031 0.075430898  0.680646220 0.976820959 10.98666 4.303651e-26
+#bmi         0.003812581 0.002320482 0.002925306 -0.001930436 0.009555598  1.30331 1.928799e-01
+#male        0.269599534 0.020046656 0.019892721  0.230545766 0.308653302 13.55267 1.737978e-37
+```
+
+We find that after adjusting for sex, the slope is found to be still not significant (p-value 0.1928)
 
 ## (h)
 Perform an analysis to determine whether there is a linear trend in mean serum creatinine levels by BMI after adjustment for sex. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association. 
 
+```{r,include=FALSE}
+regress(fnctl = "mean", formula = crt ~ bmi + male, data = mri)
+
+#               Estimate    Naive SE   Robust SE         95%L        95%H  t value     Pr(>|t|)
+#(Intercept) 0.828733590 0.063063031 0.075430898  0.680646220 0.976820959 10.98666 4.303651e-26
+#bmi         0.003812581 0.002320482 0.002925306 -0.001930436 0.009555598  1.30331 1.928799e-01
+#male        0.269599534 0.020046656 0.019892721  0.230545766 0.308653302 13.55267 1.737978e-37
+
+
+
+```
+
+Linear trend is there as slope is .003813, but is found to be not significant(p-value 0.192).
+
 ## (i)
 Perform an analysis to determine if sex modifies the association between mean serum creatinine levels and BMI.  Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
 
+```{r,include=FALSE}
+regress(fnctl = "mean", formula = crt ~ bmi*male, data = mri)
+#                Estimate    Naive SE   Robust SE         95%L
+#(Intercept)  0.790950078 0.078946740 0.095398936  0.603660651
+#bmi          0.005239316 0.002932705 0.003720871 -0.002065586
+#male         0.370309831 0.128114939 0.161482234  0.053284122
+#bmi:male    -0.003818676 0.004797921 0.006021969 -0.015641148
+#                   95%H    t value     Pr(>|t|)
+#(Intercept) 0.978239506  8.2909738 5.399222e-16
+#bmi         0.012544218  1.4080885 1.595312e-01
+#male        0.687335539  2.2931924 2.212073e-02
+#bmi:male    0.008003796 -0.6341241 5.261988e-01
+
+```
+
+We used the below model (crt ~ bmi*male) to explore the effect modification.  The interaction (bmi:male) is not found to be present as p-value is 0.5261.
+
 ## (j)
 How would you summarize the association between serum creatinine levels and BMI and sex? Provide a summary of your findings that is suitable for inclusion in a manuscript.
+
+
 
 # Question 4
 Now consider a multivariate linear regression analysis with serum creatinine level as the response and the variables age, sex, and BMI as predictors.
@@ -273,11 +391,48 @@ Now consider a multivariate linear regression analysis with serum creatinine lev
 ## (a)
 Provide an interpretation of the intercept in the regression model. Is the slope estimate scientifically useful?
 
+```{r,include=FALSE}
+regress(fnctl = "mean", formula = crt ~ age+male+bmi, data = mri)
+
+#Call:
+#regress(fnctl = "mean", formula = crt ~ age + male + bmi, data = mri)
+
+#Residuals:
+#     Min       1Q   Median       3Q      Max 
+#-0.49783 -0.16315 -0.03615  0.10189  2.75645 
+
+#Coefficients:
+#                 Estimate   Naive SE   Robust SE     95%L       95%H         F stat    df
+#[1] Intercept      0.3545     0.1649     0.1705        0.01971    0.6893          4.32 1 
+#[2] age           5.823e-03  1.873e-03  2.252e-03     1.401e-03  0.01024          6.68 1 
+#[3] male           0.2682     0.01993    0.01966       0.2296     0.3068        186.08 1 
+#[4] bmi           5.351e-03  2.359e-03  2.758e-03    -6.427e-05  0.01077          3.76 1 
+#                 Pr(>F)   
+#[1] Intercept      0.0380 
+#[2] age            0.0099 
+#[3] male         < 0.00005
+#[4] bmi            0.0528 
+
+#Residual standard error: 0.2697 on 729 degrees of freedom
+#  (2 observations deleted due to missingness)
+#Multiple R-squared:  0.2107,	Adjusted R-squared:  0.2074 
+#F-statistic: 71.57 on 3 and 729 DF,  p-value: < 2.2e-16
+
+```
+
+The intercept is the estimate of the mean CRT level for new born female who has 0 bmi. It is not scientifically relevant, and is not possible to have it in real life.
+
 ## (b)
 Give full inference for the age slope in the regression model.
+
+The age slope is the estimated change in mean CRT for one unit change (1 yr) keeping sex and bmi constant.
 
 ## (c)
 Give full inference for the sex slope in the regression model.
 
+The male slope is the estimated change in mean CRT between two sex groups by keeping age and bmi constant
+
 ## (d)
 Give full inference for the BMI slope in the regression model.
+
+The bmi slope is the estimated change in mean CRT level for one unit change in bmi(mg/dl) by keeping male and age constant.
