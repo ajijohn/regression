@@ -1,0 +1,293 @@
+---
+title: "Homework 5"
+author: "Aji John"
+date: "Winter Quarter 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+
+
+```{r setup, include=FALSE}
+### Setting up the packages, options we'll need:
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(uwIntroStats)
+knitr::opts_chunk$set(echo = FALSE)
+
+# Retrospective highcrt ~ deathin5
+
+   ## odds for highcrt for those who are alive in 5 
+   
+# Prospective deathin5 ~ highcrt
+    ## odds for those who are dead in 5 /vs alive
+```
+
+
+    
+# Question 1
+Perform a Poisson regression analysis to evaluate an association between 5 year all-cause mortality and creatinine by comparing the relative risk of death (or risk ratio of death) across groups defined by continuous serum creatinine level.  (Only provide a formal report of inference when asked to.)
+
+```{r ,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+mri <- read.table("data/mri.txt",header=TRUE) 
+mri$deathin5 <- ifelse(mri$obstime <= 365.25 * 5 & mri$death == 1, TRUE, FALSE) 
+mri$death5 <- (mri$obstime < 5*365) & (mri$death == 1)
+
+#create high/low for crt
+# 1 - high , 0 - low
+mri$crtind <- ifelse(mri$crt>1.2,1,0)
+# high' - high , '0' low - low
+mri$crtindtext <- ifelse(mri$crt>1.2,'high','low')
+mri$logcrt <- log(mri$crt)
+#kable(descrip(mri[mri$death==0,'crt']), format = "markdown")
+#kable(summary(cars), format = "markdown")
+kable(mri%>%filter(!is.na(crt) & deathin5==FALSE) %>% 
+        group_by(deathin5) %>%
+        summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
+        select(c('n','mean','sd')) %>%
+        as.data.frame() , format = "markdown")
+ 
+
+```
+
+## (a)
+
+Provide an interpretation of the slope and the intercept in the Poisson regression model, and include the numerical values of the slope and intercept in your interpretation.
+
+```{r,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+possa <- regress(fnctl = "rate", formula = deathin5 ~ crt, data = mri)
+
+coefficients(possa)
+
+# # 1 - high , 0 - low
+#Odds Ratio (Indicator true(x-axis) / Indicator 0 (alternate) )
+
+#              Estimate  Naive SE Robust SE     e(Est)    e(95%L)    e(95%H)   z value     Pr(>|z|)
+# (Intercept) -2.8604090 0.2216873 0.1954538 0.05724534 0.03900261 0.08402077 -14.63471 1.005429e-42
+#crt          0.9416154 0.1663154 0.1425578 2.56412024 1.93816950 3.39222786   6.60515 7.643946e-11
+
+```
+
+
+Slope is the estimated rate of change  between 
+
+## (b)
+
+Give full inference for an association  between 5 year all-cause mortality and  serum creatinine levels from the Poisson regression model. 
+
+
+
+RR ratio between groups differing in the value of the predictor by 1 unit (i.e groups defined by the survival status) – Found by exponentiation of the slope by poisson regression: exp(b1) - 2.5641
+
+## (c)
+Compare the association results in part b that are based on risk ratios to using a logistic regression  model where odds ratios of death within 5 years are used as the summary measure for an association  with serum creatinine level (i.e., question 3 in homework 4).    Briefly describe any similarities or differences in the association results.  
+
+```{r,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (c)
+#regress(fnctl = "odds", formula = deathin5 ~ crt, data = mri)
+
+
+#Call:
+#regress(fnctl = "odds", formula = deathin5 ~ crt, data = mri)
+
+#Deviance Residuals: 
+#    Min       1Q   Median       3Q      Max  
+#-1.0917  -0.5964  -0.5492  -0.4643   2.2837  
+
+#Coefficients:
+
+#Raw Model:
+#                 Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+#[1] Intercept     -3.605     0.4012    0.4008            80.89 1  < 0.00005
+#[2] crt            1.789     0.3398    0.3325            28.97 1  < 0.00005
+
+#Transformed Model:
+#                 e(Est)    e(95%L)   e(95%H)         F stat    df Pr(>F)   
+#[1] Intercept     0.02719   0.01238   0.05973            80.89 1  < 0.00005
+#[2] crt            5.986     3.116     11.50             28.97 1  < 0.00005
+
+#(Dispersion parameter for binomial family taken to be 1)
+
+#    Null deviance: 656.75  on 732  degrees of freedom
+#Residual deviance: 624.70  on 731  degrees of freedom
+#  (2 observations deleted due to missingness)
+#AIC: 628.7
+
+#Number of Fisher Scoring iterations: 4
+ 
+```
+
+
+
+
+# Question 2
+Questions 3 and 4 below investigate associations between serum cholesterol level, age, sex, and body mass index (BMI).  In this question we will obtain some summary statistics for these variables.
+
+
+```{r,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+logiscrtl2 <- glm(crtind~deathin5,family = binomial,data = mri)
+summary(logiscrtl2)
+
+#Call:
+#glm(formula = crtind ~ deathin5, family = binomial, data = mri)
+
+#Deviance Residuals: 
+#    Min       1Q   Median       3Q      Max  
+#-0.9508  -0.6576  -0.6576  -0.6576   1.8098  
+
+#Coefficients:
+#             Estimate Std. Error z value Pr(>|z|)    
+#(Intercept)   -1.4214     0.1021 -13.917  < 2e-16 ***
+#deathin5TRUE   0.8618     0.2148   4.012 6.03e-05 ***
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#(Dispersion parameter for binomial family taken to be 1)
+
+#    Null deviance: 776.83  on 732  degrees of freedom
+#Residual deviance: 761.57  on 731  degrees of freedom
+#  (2 observations deleted due to missingness)
+#AIC: 765.57
+
+#Number of Fisher Scoring iterations: 4
+
+#> exp(-1.4214)
+#[1] 0.2413759
+#> exp(0.8618)
+#[1] 2.367418
+ 
+```
+
+## (a) 
+Create a variable for BMI using the height and weight measurements on the subjects.  [Hint: Make sure that appropriate conversions of the weight and height measures are used in the calculation of BMI].  Provide a figure illustrating the distribution of BMI in the sample.
+
+
+
+```{r}
+### Question 1:
+
+```
+
+## (b)
+Provide suitable descriptive statistics for serum creatinine levels, age, sex, and BMI. 
+
+
+```{r}
+### Question 1:
+
+#exp(-1.4214 + (0.8618  * 1))
+#[1] 0.5714376
+
+# 0.5714376 / (1+0.5714376)
+```
+
+
+
+
+
+# Question 3
+
+We are interested in examining how mean serum creatinine levels vary by BMI and sex. In the questions below, you do not need to provide full statistical inference. Instead, just answer the following questions.
+
+## (a)
+
+Create a scatterplot of serum creatinine levels versus BMI.  Use different symbols and/or colors for each sex group, and include LOWESS  (or LOESS) curves for each sex group. 
+
+```{r ,echo=FALSE, include=FALSE}
+### Question 2:
+# note: round() Does not print trailing zeros
+regress("odds",formula = deathin5 ~ crt, data = mri)
+
+#Call:
+#regress(fnctl = "odds", formula = deathin5 ~ crt, data = mri)
+
+#Deviance Residuals: 
+#    Min       1Q   Median       3Q      Max  
+#-1.0917  -0.5964  -0.5492  -0.4643   2.2837  
+
+#Coefficients:
+
+#Raw Model:
+#                 Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+#[1] Intercept     -3.605     0.4012    0.4008            80.89 1  < 0.00005
+#[2] crt            1.789     0.3398    0.3325            28.97 1  < 0.00005
+
+#Transformed Model:
+#                 e(Est)    e(95%L)   e(95%H)         F stat    df Pr(>F)   
+#[1] Intercept     0.02719   0.01238   0.05973            80.89 1  < 0.00005
+#[2] crt            5.986     3.116     11.50             28.97 1  < 0.00005
+
+#(Dispersion parameter for binomial family taken to be 1)
+
+#    Null deviance: 656.75  on 732  degrees of freedom
+#Residual deviance: 624.70  on 731  degrees of freedom
+#  (2 observations deleted due to missingness)
+#AIC: 628.7
+
+#Number of Fisher Scoring iterations: 4
+
+
+#> exp(-3.605)
+#[1] 0.02718744
+#> exp(1.789)
+#[1] 5.983466
+
+```
+
+
+## (b)
+What observations do you make from the scatterplot in part a regarding the association between serum creatinine levels and BMI?    
+
+
+```{r,include=FALSE}
+### Question 2:
+# note: round() Does not print trailing zeros
+#(e-.00006242 , e0.007396 ) = (1.051,1.056)
+```
+
+## (c)
+Is there evidence from descriptive statistics (question 2) and the scatterplot in part a that sex modifies the association between serum creatinine level and BMI? Explain your reasoning.
+
+## (d)
+Is there evidence from descriptive statistics (question 1) and the scatterplot in part a that sex confounds the association between serum creatinine level and BMI? Explain your reasoning.
+
+## (e)
+Perform an analysis to determine whether mean serum creatinine levels differ across sex groups. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
+## (f)
+Perform an analysis to determine whether there is a linear trend in mean serum creatinine levels by BMI. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association. 
+
+## (g)
+Perform an analysis to determine whether mean serum creatinine levels differ across sex groups after adjustment for BMI. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
+
+## (h)
+Perform an analysis to determine whether there is a linear trend in mean serum creatinine levels by BMI after adjustment for sex. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association. 
+
+## (i)
+Perform an analysis to determine if sex modifies the association between mean serum creatinine levels and BMI.  Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
+
+## (j)
+How would you summarize the association between serum creatinine levels and BMI and sex? Provide a summary of your findings that is suitable for inclusion in a manuscript.
+
+# Question 4
+Now consider a multivariate linear regression analysis with serum creatinine level as the response and the variables age, sex, and BMI as predictors.
+
+## (a)
+Provide an interpretation of the intercept in the regression model. Is the slope estimate scientifically useful?
+
+## (b)
+Give full inference for the age slope in the regression model.
+
+## (c)
+Give full inference for the sex slope in the regression model.
+
+## (d)
+Give full inference for the BMI slope in the regression model.
