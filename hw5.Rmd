@@ -75,7 +75,7 @@ coefficients(possa)
 ```
 
 
-Slope is the estimated rate of change  between 
+Exponentiated Slope is the (Rel Risk Ratio), and the exponentiated intercept is the base risk.
 
 ## (b)
 
@@ -131,9 +131,17 @@ Compare the association results in part b that are based on risk ratios to using
 Questions 3 and 4 below investigate associations between serum cholesterol level, age, sex, and body mass index (BMI).  In this question we will obtain some summary statistics for these variables.
 
 
+
 ```{r,echo=FALSE,include=FALSE}
 ### Question 1:
 # Part (a)
+
+# Weight in lbs and height in centim
+#Body Mass Index is a simple calculation using a person’s height and weight. The formula is BMI = kg/m2 where kg is a person’s weight in kilograms and m2 is their height in metres squared.
+# 1 cm2 = 0.0001 m2
+
+ mri$bmi <- (mri$weight/2.2) / (mri$height / 100)^2
+
 logiscrtl2 <- glm(crtind~deathin5,family = binomial,data = mri)
 summary(logiscrtl2)
 
@@ -172,15 +180,19 @@ Create a variable for BMI using the height and weight measurements on the subjec
 
 
 
-```{r}
+```{r,include=TRUE,warning=FALSE,error=FALSE,error=FALSE}
+
+# Male female and Total
 ### Question 1:
+mri %>% ggplot(aes(bmi)) + geom_histogram(binwidth = 5)
+
 
 ```
 
 ## (b)
 Provide suitable descriptive statistics for serum creatinine levels, age, sex, and BMI. 
 
-
+#todo # Male female and Total
 ```{r}
 ### Question 1:
 
@@ -202,44 +214,13 @@ We are interested in examining how mean serum creatinine levels vary by BMI and 
 
 Create a scatterplot of serum creatinine levels versus BMI.  Use different symbols and/or colors for each sex group, and include LOWESS  (or LOESS) curves for each sex group. 
 
-```{r ,echo=FALSE, include=FALSE}
+```{r ,echo=FALSE, include=TRUE}
 ### Question 2:
 # note: round() Does not print trailing zeros
-regress("odds",formula = deathin5 ~ crt, data = mri)
-
-#Call:
-#regress(fnctl = "odds", formula = deathin5 ~ crt, data = mri)
-
-#Deviance Residuals: 
-#    Min       1Q   Median       3Q      Max  
-#-1.0917  -0.5964  -0.5492  -0.4643   2.2837  
-
-#Coefficients:
-
-#Raw Model:
-#                 Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
-#[1] Intercept     -3.605     0.4012    0.4008            80.89 1  < 0.00005
-#[2] crt            1.789     0.3398    0.3325            28.97 1  < 0.00005
-
-#Transformed Model:
-#                 e(Est)    e(95%L)   e(95%H)         F stat    df Pr(>F)   
-#[1] Intercept     0.02719   0.01238   0.05973            80.89 1  < 0.00005
-#[2] crt            5.986     3.116     11.50             28.97 1  < 0.00005
-
-#(Dispersion parameter for binomial family taken to be 1)
-
-#    Null deviance: 656.75  on 732  degrees of freedom
-#Residual deviance: 624.70  on 731  degrees of freedom
-#  (2 observations deleted due to missingness)
-#AIC: 628.7
-
-#Number of Fisher Scoring iterations: 4
+mri%>% ggplot(aes(bmi,crt,color=as.factor(male))) + geom_point()  +
+  geom_smooth(method = "lm", se = FALSE)
 
 
-#> exp(-3.605)
-#[1] 0.02718744
-#> exp(1.789)
-#[1] 5.983466
 
 ```
 
@@ -254,14 +235,23 @@ What observations do you make from the scatterplot in part a regarding the assoc
 #(e-.00006242 , e0.007396 ) = (1.051,1.056)
 ```
 
+
+
+
 ## (c)
 Is there evidence from descriptive statistics (question 2) and the scatterplot in part a that sex modifies the association between serum creatinine level and BMI? Explain your reasoning.
+
+The lines diverge, so it is an effect modifier
 
 ## (d)
 Is there evidence from descriptive statistics (question 1) and the scatterplot in part a that sex confounds the association between serum creatinine level and BMI? Explain your reasoning.
 
+No, lines are not parallel for each bmi group
+
 ## (e)
 Perform an analysis to determine whether mean serum creatinine levels differ across sex groups. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association.  
+
+
 ## (f)
 Perform an analysis to determine whether there is a linear trend in mean serum creatinine levels by BMI. Briefly describe the analysis that you performed and clearly state the basis of your conclusion regarding an association. 
 
