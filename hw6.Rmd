@@ -1,0 +1,348 @@
+---
+title: "Homework 6"
+author: "Aji John"
+date: "Winter Quarter 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+We are interested in assessing associations among systolic blood pressure, age, sex, and race.The sample is of generally healthy elderly subjects from four U.S. communities.
+
+```{r setup, include=FALSE}
+### Setting up the packages, options we'll need:
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(uwIntroStats)
+knitr::opts_chunk$set(echo = FALSE)
+
+# Retrospective highcrt ~ deathin5
+
+   ## odds for highcrt for those who are alive in 5 
+   
+# Prospective deathin5 ~ highcrt
+    ## odds for those who are dead in 5 /vs alive
+```
+
+
+    
+# Question 1
+We are interested in examining how mean systolic blood pressure varies by age and sex.  
+
+```{r ,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+mri <- read.table("data/mri.txt",header=TRUE) 
+mri$deathin5 <- ifelse(mri$obstime <= 365.25 * 5 & mri$death == 1, TRUE, FALSE) 
+mri$death5 <- (mri$obstime < 5*365) & (mri$death == 1)
+
+#create high/low for crt
+# 1 - high , 0 - low
+mri$crtind <- ifelse(mri$crt>1.2,1,0)
+# high' - high , '0' low - low
+mri$crtindtext <- ifelse(mri$crt>1.2,'high','low')
+mri$logcrt <- log(mri$crt)
+#kable(descrip(mri[mri$death==0,'crt']), format = "markdown")
+#kable(summary(cars), format = "markdown")
+kable(mri%>%filter(!is.na(crt) & deathin5==FALSE) %>% 
+        group_by(deathin5) %>%
+        summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
+        select(c('n','mean','sd')) %>%
+        as.data.frame() , format = "markdown")
+ 
+
+```
+
+## (a)
+
+Create a scatterplot of systolic blood pressure versus age.  Use different symbols and/or colors for each sex group, and include LOWESS  (or LOESS) curves for each sex group. 
+
+```{r,echo=FALSE,include=TRUE}
+
+mri%>% ggplot(aes(age,sbp,color=as.factor(male))) + geom_point()  +
+geom_smooth(method = "loess", se = FALSE) +  xlab("Age(yrs)") +ylab("Systolic Blood Pressure(mm/Hg)") + 
+geom_smooth(aes(age,sbp,color="red"),method = "loess", se = FALSE) +   ggtitle("Systolic blood pressure of MRI study Individuals") +
+scale_color_manual(name="",labels = c("Male", "Female", "All"), values = c("blue", "red","green")) 
+
+
+```
+
+
+
+
+## (b)
+
+Is there evidence from the scatterplot of an association between systolic blood pressure and age after adjusting for sex?   Explain your reasoning.
+
+
+We dont see any association
+
+* The narginal trend is same
+* SBP is also hovering for both sexes in 1 SD of 10 mm/Hg
+
+## (c)
+Is there evidence from the scatterplot that sex modifies the association between systolic blood pressure and age? Explain your reasoning. 
+
+
+
+Yes, We do see any evidence of sex modifying the association between SBP and age.
+
+* Lines cross
+* 
+
+## (d)
+Perform a statistical analysis to determine if sex modifies the association between systolic blood pressure and age.  Provide full statistical inference.
+
+```{r,echo=FALSE,include=FALSE}
+
+#regress(fnctl = "mean", formula = sbp ~ age * male, data = mri)
+
+#Residuals:
+#@   Min     1Q Median     3Q    Max 
+#-50.80 -13.60  -0.94  10.30  76.77 
+
+#Coefficients:
+#                 Estimate  Naive SE  Robust SE    95%L      95%H         F stat    df
+#[1] Intercept      76.47     14.42     13.74        49.49     103.4          30.97 1 
+#[2] age            0.7372    0.1933    0.1855       0.3730    1.101          15.79 1 
+#[3] male           42.00     19.79     19.64        3.445     80.55           4.57 1 
+#[4] age:male      -0.5709    0.2647    0.2643      -1.090   -0.05200          4.67 1 
+#                 Pr(>F)   
+#[1] Intercept    < 0.00005
+#[2] age            0.0001 
+#[3] male           0.0328 
+#[4] age:male       0.0311 
+
+#Residual standard error: 19.5 on 731 degrees of freedom
+#Multiple R-squared:  0.02073,	Adjusted R-squared:  0.01671 
+#F-statistic: 5.527 on 3 and 731 DF,  p-value: 0.0009362 
+```
+
+For each 1 year difference in age between two groups that have the same sex, the difference in mean SBP is 0.7372(95% CI:.373 to 1.101, with the older group with higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two age groups that have the same sex. (P-value is  .0001 which is found to be significant at alpha = 0.05).
+
+## Ask about how to decipher the category which is higher
+Between two sex groups that have the same Age, the difference in mean SBP is  42(95% CI:3.445 to 80.55, with the males having a lower SBP The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two sex groups that have the same Age (P-value is 0.03 which is found to be significant at alpha = 0.05).
+
+Additionally, we find that there is  evidence of sex having an effect on the association between SBP and Age(P-value is found to be 0.03)
+
+# Question 2
+Now suppose we are interested in examining how mean systolic blood pressure varies by race and age. 
+
+
+## (a)
+Create a scatterplot of systolic blood pressure versus age.  Use different symbols and/or colors for each race group, and include LOWESS  (or LOESS) curves for each race group. 
+
+
+
+```{r,include=TRUE,warning=FALSE,error=FALSE,error=FALSE}
+
+mri%>% ggplot(aes(age,sbp,color=as.factor(race))) + geom_point()  +
+geom_smooth(method = "loess", se = FALSE) +  xlab("Age(yrs)") +ylab("Systolic Blood Pressure(mm/Hg)") + 
+geom_smooth(aes(age,sbp,color="black"),method = "loess", se = FALSE) +   ggtitle("Systolic blood pressure of MRI study Individuals") +
+scale_color_manual(name="",labels = c("White", "Black", "Asian","Other","All"), values = c("blue", "red","green","yellow","black")) 
+
+#1= white, 2= black, 3= Asian, 4= other
+
+```
+
+## (b)
+What observations do you make from the scatterplot regarding an association between systolic blood pressure and race.
+
+* Whites inline with the marginal trend (intution says might be skewed on sample)
+* 'Other' race having a non-linear trend
+* 
+
+
+
+
+## (c)
+Perform a multivariate linear regression analysis with systolic blood pressure as the response  and with race and age as predictors.  What is the baseline group for race in your regression model. Provide an interpretation of the intercept in your regression model and include the numerical value of the intercept in your interpretation. Is the intercept scientifically useful?  Briefly explain. 
+
+1= white, 2= black, 3= Asian, 4= other
+
+Baseline group for race is 'white'. The intercept is the estimated mean SBP for white, and the corresponding value is 99.01 mm/Hg. Yes ,it is scientifically relevant as it gives the default estimated mean SBP for one racial group.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+regress(fnctl = "mean", formula = sbp ~ age + as.factor(race), data = mri)
+
+
+#Call:
+#regress(fnctl = "mean", formula = sbp ~ age + as.factor(race), 
+#    data = mri)
+
+#Residuals:
+#    Min      1Q  Median      3Q     Max 
+#-51.529 -13.489  -0.844  10.364  78.551 
+
+#Coefficients:
+#                                        Estimate  Naive SE  Robust SE    95%L      95%H     
+#[1] Intercept                             99.01     9.872     9.687        79.99     118.0  
+#[2] age                                   0.4213    0.1321    0.1305       0.1651    0.6774 
+#    as.factor(race)                                                                         
+#[3]    factor(race).as.factor(race)2      4.344     2.080     2.162       0.09968    8.588  
+#[4]    factor(race).as.factor(race)3     -0.5706    2.960     2.966       -6.393     5.252  
+#[5]    factor(race).as.factor(race)4      6.345     5.689     6.473       -6.362     19.05  
+#                                           F stat    df Pr(>F)   
+#[1] Intercept                                 104.46 1  < 0.00005
+#[2] age                                        10.42 1    0.0013 
+#    as.factor(race)                             1.67 3    0.1718 
+#[3]    factor(race).as.factor(race)2            4.04 1    0.0449 
+#[4]    factor(race).as.factor(race)3            0.04 1    0.8475 
+#[5]    factor(race).as.factor(race)4            0.96 1    0.3273 
+
+#Residual standard error: 19.5 on 730 degrees of freedom
+#Multiple R-squared:  0.02175,	Adjusted R-squared:  0.01639 
+#F-statistic: 3.939 on 4 and 730 DF,  p-value: 0.003593
+#1= white, 2= black, 3= Asian, 4= other
+```
+
+## (d)
+Provide an interpretation of the age slope in your regression model in part c, and include the numerical value of the age slope in your interpretation.  Is the age slope scientifically useful? Briefly explain. 
+
+Age slope is the mean estimated difference in SBP in one year change in age by keeping the race constant. Here the age slope is 0.4213, and it is relevant as it gives the estimated difference in SBP for differnt racial groups.
+
+## (e)
+Is race a confounder, precision variable, or neither for the association between systolic blood pressure and age?  Explain and provide evidence to support your reasoning. 
+
+Race looks to be a confounder.
+
+* Affecting the marginal trend
+* Going opposite to the overall trend
+
+## (f)
+Perform a statistical analysis using the multivariate regression model in part c to determine if race is associated with systolic blood pressure after adjusting for age.  Provide full statistical inference.
+
+For each 1 year difference in age between two groups that have the same race, the difference in mean SBP is 0.4213(95% CI:0.165 to 0.677, with the older group with higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two age groups that have the same race (P-value is  .0013 which is found to be significant at alpha = 0.05).
+
+### Is there a diff interpretation - race is associated with systolic blood pressure after adjusting for age?
+
+# Question 3
+
+Perform a multivariate linear regression analysis with systolic blood pressure as the response  and with race, sex, age, and an interaction for sex and age as predictors.   
+
+## (a)
+
+What is the baseline group for race in your regression model. Provide an interpretation of the intercept in your regression model and include the numerical value of the intercept in your interpretation. What, if any, scientific use would you make of the intercept?
+
+Baseline group for race is 'white'. Intercept here is the estimated mean SBP for white newborn females. Scientifically not relevant as it is not what was collected or the subjects were.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+regress(fnctl = "mean", formula = sbp ~ age + as.factor(race)+ male + male*age, data = mri)
+
+# ##
+# Call:
+# regress(fnctl = "mean", formula = sbp ~ age + as.factor(race) + 
+#     male + male * age, data = mri)
+# 
+# Residuals:
+#     Min      1Q  Median      3Q     Max 
+# -51.688 -13.618  -1.284  10.792  77.414 
+# 
+# Coefficients:
+#                                         Estimate  Naive SE  Robust SE    95%L      95%H     
+# [1] Intercept                             76.36     14.40     13.46        49.94     102.8  
+# [2] age                                   0.7302    0.1933    0.1817       0.3734    1.087  
+#     as.factor(race)                                                                         
+# [3]    factor(race).as.factor(race)2      4.292     2.076     2.170       0.03173    8.553  
+# [4]    factor(race).as.factor(race)3     -0.9024    2.958     2.930       -6.654     4.849  
+# [5]    factor(race).as.factor(race)4      6.583     5.683     6.280       -5.746     18.91  
+# [6] male                                  42.29     19.77     19.36        4.284     80.29  
+# [7] age:male                             -0.5756    0.2646    0.2604      -1.087   -0.06425 
+#                                            F stat    df Pr(>F)   
+# [1] Intercept                                  32.20 1  < 0.00005
+# [2] age                                        16.14 1    0.0001 
+#     as.factor(race)                             1.71 3    0.1639 
+# [3]    factor(race).as.factor(race)2            3.91 1    0.0483 
+# [4]    factor(race).as.factor(race)3            0.09 1    0.7582 
+# [5]    factor(race).as.factor(race)4            1.10 1    0.2949 
+# [6] male                                        4.77 1    0.0292 
+# [7] age:male                                    4.88 1    0.0274 
+# 
+# Residual standard error: 19.46 on 728 degrees of freedom
+# Multiple R-squared:  0.02832,	Adjusted R-squared:  0.02031 
+# F-statistic: 3.727 on 6 and 728 DF,  p-value: 0.001169
+# ##
+
+
+```
+
+
+## (b)
+Provide an interpretation of the sex slope in your regression model, and include the numerical value of the sex slope in your interpretation. Is the sex slope scientifically useful? Briefly explain.   
+
+Sex slope is the mean estimated difference in SBP between females and males by keeping the race, and age constant. Here the sex slope is 42.29, and it is relevant as it gives the estimated difference in SBP for two sex groups i.e. we can infer the estimated difference in mean SBP for males and females .
+
+```{r,include=FALSE}
+### Question 2:
+# note: round() Does not print trailing zeros
+#(e-.00006242 , e0.007396 ) = (1.051,1.056)
+```
+
+
+
+## (c)
+Provide an interpretation of the age slope in your regression model, and include the numerical value of the age slope in your interpretation.  Is the age slope scientifically useful?  Briefly explain.  
+
+Age slope is the mean estimated difference in SBP for each 1 yr difference in age by keeping the race, and sex constant. Here the age slope is .7302, and it is relevant as it gives the estimated difference in SBP for two age groups who differ by one year.
+
+## (d)
+Perform a statistical analysis using the multivariate regression model to determine if age is associated with systolic blood pressure.  Provide full statistical inference.
+
+For each year difference in age between two groups that have the same sex and race, the difference in mean SBP is .7302(95% CI:.373 to 1.087), with the older group having a higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between age groups that have the same sex and race(P-value is 0.0001)
+
+## (e)
+Perform a statistical analysis using the multivariate regression model to determine if sex is associated with systolic blood pressure.  Provide full statistical inference.
+
+```{r,include=FALSE}
+t.test(mri[which(mri$male==1),]$crt,mri[which(mri$male==0),]$crt,
+       alternative = c("two.sided") ,conf.level = 0.95,var.equal = FALSE)
+```
+
+Between two sex groups that have the same age and race, the difference in mean SBP is 42.29(95% CI:4.284 to 80.29), with the males having a higher SBP The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two sex groups that have the same age and race(P-value is .02)
+
+### check the statement on who has higher
+
+## (f)
+Perform a statistical analysis using the multivariate regression model to determine if race is associated with systolic blood pressure. Provide full statistical inference.
+
+Between the racial groups 'white' and 'black' that have the same age and sex, the difference in mean SBP is 4.29(95% CI:0.03 to 8.55), with the 'black' group having a higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two racial groups('white' and 'black') that have the same age and sex (P-value is .04).
+
+### for all the racial groups
+
+## (g)
+Perform a statistical analysis using the multivariate regression model for testing the null hypothesis that both age and sex are not associated with systolic blood pressure. Provide full statistical inference.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+regress(fnctl = "mean", formula = sbp ~  male*age, data = mri)
+
+# Call:
+# regress(fnctl = "mean", formula = sbp ~ male * age, data = mri)
+# 
+# Residuals:
+#    Min     1Q Median     3Q    Max 
+# -50.80 -13.60  -0.94  10.30  76.77 
+# 
+# Coefficients:
+#                  Estimate  Naive SE  Robust SE    95%L      95%H         F stat    df
+# [1] Intercept      76.47     14.42     13.74        49.49     103.4          30.97 1 
+# [2] male           42.00     19.79     19.64        3.445     80.55           4.57 1 
+# [3] age            0.7372    0.1933    0.1855       0.3730    1.101          15.79 1 
+# [4] male:age      -0.5709    0.2647    0.2643      -1.090   -0.05200          4.67 1 
+#                  Pr(>F)   
+# [1] Intercept    < 0.00005
+# [2] male           0.0328 
+# [3] age            0.0001 
+# [4] male:age       0.0311 
+# 
+# Residual standard error: 19.5 on 731 degrees of freedom
+# Multiple R-squared:  0.02073,	Adjusted R-squared:  0.01671 
+# F-statistic: 5.527 on 3 and 731 DF,  p-value: 0.0009362
+# 
+
+```
+
+Based on our multivariate regression analysis, we reject the null hypothesis that age/sex are not  associated with SBP(P-value is 0.0009). 
+
+### more detail
