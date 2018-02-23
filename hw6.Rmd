@@ -78,18 +78,16 @@ Is there evidence from the scatterplot of an association between systolic blood 
 
 We dont see any association
 
-* The narginal trend is same
+* The marginal trend is same.
 * SBP is also hovering for both sexes in 1 SD of 10 mm/Hg
 
 ## (c)
 Is there evidence from the scatterplot that sex modifies the association between systolic blood pressure and age? Explain your reasoning. 
 
+Yes, we do see  evidence of sex modifying the association between SBP and age.
 
-
-Yes, We do see any evidence of sex modifying the association between SBP and age.
-
-* Lines cross
-* There maybe an effect modification, two slopes are not eactly same.
+* Lines cross.
+* There maybe an effect modification, two slopes are not exactly same.
 
 ## (d)
 Perform a statistical analysis to determine if sex modifies the association between systolic blood pressure and age.  Provide full statistical inference.
@@ -121,12 +119,7 @@ Perform a statistical analysis to determine if sex modifies the association betw
 # the difference in slope  between the two sexes is not zero.
 ```
 
-For each 1 year difference in age between two groups that have the same sex, the difference in mean SBP is 0.7372(95% CI:.373 to 1.101, with the older group with higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two age groups that have the same sex. (P-value is  .0001 which is found to be significant at alpha = 0.05).
-
-## Ask about how to decipher the category which is higher
-Between two sex groups that have the same age, the difference in mean SBP is  42(95% CI:3.445 to 80.55, with the males having a lower SBP The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two sex groups that have the same Age (P-value is 0.03 which is found to be significant at alpha = 0.05).
-
-Additionally, we find that there is  evidence of sex having an effect on the association between SBP and Age(P-value is found to be 0.03)
+For each 1 year difference in age between two groups that have the same sex, the difference in mean SBP is .5709(95% CI:-1.090 to -0.05) lower in male group. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two  groups. In summary, we find that there is  evidence of sex having an effect on the association between SBP and Age(P-value is found to be 0.03)
 
 # Question 2
 Now suppose we are interested in examining how mean systolic blood pressure varies by race and age. 
@@ -141,7 +134,7 @@ Create a scatterplot of systolic blood pressure versus age.  Use different symbo
 
 mri%>% ggplot(aes(age,sbp,color=as.factor(race))) + geom_point()  +
 geom_smooth(method = "lm", se = TRUE) +  xlab("Age(yrs)") +ylab("Systolic Blood Pressure(mm/Hg)") + 
-geom_smooth(aes(age,sbp,color="black"),method = "loess", se = TRUE) +   ggtitle("Systolic blood pressure of MRI study Individuals") +
+geom_smooth(aes(age,sbp,color="black"),method = "lm", se = TRUE) +   ggtitle("Systolic blood pressure of MRI study Individuals") +
 scale_color_manual(name="",labels = c("White", "Black", "Asian","Other","All"), values = c("blue", "red","green","yellow","black"))  + theme_minimal()
 
 #1= white, 2= black, 3= Asian, 4= other
@@ -151,9 +144,10 @@ scale_color_manual(name="",labels = c("White", "Black", "Asian","Other","All"), 
 ## (b)
 What observations do you make from the scatterplot regarding an association between systolic blood pressure and race.
 
-* Whites inline with the marginal trend (intution says might be skewed on sample)
+* 'Whites' inline with the marginal trend (intution says might be skewed on sample)
 * 'Other' race having a non-linear trend
-* 
+*  Sampling variability
+
 
 
 
@@ -163,7 +157,7 @@ Perform a multivariate linear regression analysis with systolic blood pressure a
 
 1= white, 2= black, 3= Asian, 4= other
 
-Baseline group for race is 'white'. The intercept is the estimated mean SBP for white, and the corresponding value is 99.01 mm/Hg. Yes ,it is scientifically relevant as it gives the default estimated mean SBP for one racial group.
+Baseline group for race is 'white'. The intercept is the estimated mean SBP for white, and the corresponding value is 99.01 mm/Hg. Yes ,it is  not scientifically relevant as it gives the default estimated mean SBP for one racial group for newborns.
 
 ```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
 
@@ -208,15 +202,16 @@ Age slope is the mean estimated difference in SBP in one year change in age by k
 ## (e)
 Is race a confounder, precision variable, or neither for the association between systolic blood pressure and age?  Explain and provide evidence to support your reasoning. 
 
-Race looks to be a Precision variable
+Race looks to be a precision variable.
 
-* As it reduces the variance when race is added, the Confidence Intervel becomes tighter(evident in scatter plot)
+* As it reduces the variance when race is added, the confidence intervel becomes tighter(evident in scatter plot)
+
 
 ## (f)
 Perform a statistical analysis using the multivariate regression model in part c to determine if race is associated with systolic blood pressure after adjusting for age.  Provide full statistical inference.
 
-For each 1 year difference in age between two groups that have the same race, the difference in mean SBP is 0.4213(95% CI:0.165 to 0.677, with the older group with higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two age groups that have the same race (P-value is  .0013 which is found to be significant at alpha = 0.05).
 
+Based on ANOVA, we find that race is not associated with SBP after adjusting for age (P-value is .135), our full model included age and race, and our null model included only age. 
 
 ```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
 
@@ -236,9 +231,11 @@ anova(mreg1,mreg2)
 #1    733 279740                           
 #2    730 277623  3    2116.9 1.8554 0.1357
 
+### Is there a diff interpretation - race is associated with systolic blood pressure after ###adjusting for age?
+
 ```
 
-### Is there a diff interpretation - race is associated with systolic blood pressure after adjusting for age?
+
 
 # Question 3
 
@@ -248,7 +245,7 @@ Perform a multivariate linear regression analysis with systolic blood pressure a
 
 What is the baseline group for race in your regression model. Provide an interpretation of the intercept in your regression model and include the numerical value of the intercept in your interpretation. What, if any, scientific use would you make of the intercept?
 
-Baseline group for race is 'white'. Intercept here is the estimated mean SBP for white newborn females. Scientifically not relevant as it is not what was collected or the subjects were.
+Baseline group for race is 'white'. Intercept here is the estimated mean SBP for white newborn females. The numerical value is 76.36(mm/Hg). Scientifically not relevant as it is not what was collected or the subjects were.
 
 ```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
 regress(fnctl = "mean", formula = sbp ~ age + as.factor(race)+ male + male*age, data = mri)
@@ -294,12 +291,18 @@ regress(fnctl = "mean", formula = sbp ~ age + as.factor(race)+ male + male*age, 
 ## (b)
 Provide an interpretation of the sex slope in your regression model, and include the numerical value of the sex slope in your interpretation. Is the sex slope scientifically useful? Briefly explain.   
 
-Sex slope is the mean estimated difference in SBP between females and males by keeping the race, and age constant. Here the sex slope is 42.29, and it is relevant as it gives the estimated difference in SBP for two sex groups i.e. we can infer the estimated difference in mean SBP for males and females .
+Sex slope is the mean estimated difference in SBP between males and females by keeping the race, and age(=0) constant. Here the sex slope is 42.29 higher than female, and it is not relevant as it gives the  SBP for newborns .
 
 ```{r,include=FALSE}
 ### Question 2:
 # note: round() Does not print trailing zeros
 #(e-.00006242 , e0.007396 ) = (1.051,1.056)
+
+##rewrite
+
+#indiva duff in sex, but same sex and age = 0
+#y = b0+ b1+race + b2 age + b3 male + b4 age male
+
 ```
 
 
@@ -307,36 +310,84 @@ Sex slope is the mean estimated difference in SBP between females and males by k
 ## (c)
 Provide an interpretation of the age slope in your regression model, and include the numerical value of the age slope in your interpretation.  Is the age slope scientifically useful?  Briefly explain.  
 
-Age slope is the mean estimated difference in SBP for each 1 yr difference in age by keeping the race, and sex constant. Here the age slope is .7302, and it is relevant as it gives the estimated difference in SBP for two age groups who differ by one year.
+Age slope is the mean estimated difference in SBP for each 1 yr difference in age by keeping the race, and sex(0=female) constant. Here the age slope is .7302, and it is relevant as it gives the estimated difference in SBP for two female age groups who differ by one year.
 
 ## (d)
 Perform a statistical analysis using the multivariate regression model to determine if age is associated with systolic blood pressure.  Provide full statistical inference.
 
-For each year difference in age between two groups that have the same sex and race, the difference in mean SBP is .7302(95% CI:.373 to 1.087), with the older group having a higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between age groups that have the same sex and race.(P-value is 0.0001)
+We did ANOVA with null model excluding age, and its interaction with sex, and full model as age,race,sex and sex-age interaction, and found that age is associated with SBP. The associastion is found to be significant at P-value < 0.001.
 
-#Talk about 
+Optionally, for each year difference in age between two groups that have the same sex and race, the difference in mean SBP is .7302(95% CI:.373 to 1.087), with the older group having a higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between age groups that have the same sex and race.(P-value is 0.0001)
+
+
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+
+mreg3d1 <- lm(sbp ~ age + as.factor(race) + male + male*age,data = mri)
+mreg3d2 <- lm(sbp ~ as.factor(race) + male ,data = mri)
+
+anova(mreg3d1,mreg3d2)
+
+# Analysis of Variance Table
+# 
+# Model 1: sbp ~ age + as.factor(race) + male + male * age
+# Model 2: sbp ~ as.factor(race) + male
+#   Res.Df    RSS Df Sum of Sq      F    Pr(>F)    
+# 1    728 275760                                  
+# 2    730 281445 -2     -5685 7.5042 0.0005945 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+```
+
+
+
 
 ## (e)
 Perform a statistical analysis using the multivariate regression model to determine if sex is associated with systolic blood pressure.  Provide full statistical inference.
 
 ```{r,include=FALSE}
-t.test(mri[which(mri$male==1),]$crt,mri[which(mri$male==0),]$crt,
-       alternative = c("two.sided") ,conf.level = 0.95,var.equal = FALSE)
+
 ```
 
 Between two sex groups that have the same age and race, the difference in mean SBP is 42.29(95% CI:4.284 to 80.29), with the males having a higher SBP The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two sex groups that have the same age and race(P-value is .02)
 
-### check the statement on who has higher
+But, doing ANOVA we find that sex is associated with SBP (p-value is 0.0862)
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+
+mreg3e1 <- lm(sbp ~ age + as.factor(race) + male + male*age,data = mri)
+mreg3e2 <- lm(sbp ~ age + as.factor(race)  ,data = mri)
+
+anova(mreg3e1,mreg3e2)
+
+
+# Analysis of Variance Table
+# 
+# Model 1: sbp ~ age + as.factor(race) + male + male * age
+# Model 2: sbp ~ age + as.factor(race)
+#   Res.Df    RSS Df Sum of Sq      F Pr(>F)  
+# 1    728 275760                             
+# 2    730 277623 -2   -1863.1 2.4593 0.0862 .
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+```
+
+
+
 
 ## (f)
 Perform a statistical analysis using the multivariate regression model to determine if race is associated with systolic blood pressure. Provide full statistical inference.
 
-Doing ANOVA, we find that race is not associated with SBP (P-value is 0.1289), but checking the races individually, we find that the race 'black' has significant effect(P-value is 0.0483 ).
+Doing ANOVA, we find that race is not associated with SBP (P-value is 0.1289), in the ANOVA test, the null-model is with age, sex and its interaction, and full model being age,race,sex and sex-age interaction.
 
 
-Between the racial groups 'white' and 'black' that have the same age and sex, the difference in mean SBP is 4.29(95% CI:0.03 to 8.55), with the 'black' group having a higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two racial groups('white' and 'black') that have the same age and sex (P-value is .04).
 
-### for all the racial groups
+Additionally, doing linear regression, we find that between the racial groups 'white' and 'black' that have the same age and sex, the difference in mean SBP is 4.29(95% CI:0.03 to 8.55), with the 'black' group having a higher SBP. The results are highly atypical of what we might expect if there was no true difference in mean SBP levels between two racial groups('white' and 'black') that have the same age and sex (P-value is .04).
 
 
 ```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
@@ -398,23 +449,19 @@ Perform a statistical analysis using the multivariate regression model for testi
 
 
 mreg31 <- lm(sbp ~ age + as.factor(race) + male + male*age,data = mri)
-mreg32 <- lm(sbp ~ age + as.factor(race) + male ,data = mri)
+mreg32 <- lm(sbp ~  as.factor(race)  ,data = mri)
 
 anova(mreg31,mreg32)
 
 
-#Analysis of Variance Table
-
-#Model 1: sbp ~ age + as.factor(race) + male + male * age
-#Model 2: sbp ~ age + as.factor(race) + male
-#  Res.Df    RSS Df Sum of Sq     F  Pr(>F)  
-#1    728 275760                             
-#2    729 277553 -1   -1792.8 4.733 0.02991 *
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-
+# Analysis of Variance Table
+# 
+# Model 1: sbp ~ age + as.factor(race) + male + male * age
+# Model 2: sbp ~ as.factor(race)
+#   Res.Df    RSS Df Sum of Sq      F   Pr(>F)   
+# 1    728 275760                                
+# 2    731 281487 -3   -5727.7 5.0403 0.001837 **
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 ```
-Doing ANOVA by excluding the sex and age interaction, we see that both age and sex are associated with systolic blood pressure (P-value is found to be 0.029) i.e. we reject the null hypothesis. .Furthermore, based on our multivariate regression analysis, we reject the null hypothesis that age/sex are associated with SBP (P-value is 0.0274). 
-
-### more detail
+Doing ANOVA by excluding the sex and age interaction in null model and as age,race,sex and sex-age interactionin main model, we see that both age and sex are associated with systolic blood pressure (P-value is found to be  < 0.01) i.e. we reject the null hypothesis.  
