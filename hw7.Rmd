@@ -1,0 +1,393 @@
+---
+title: "Homework 7"
+author: "Aji John"
+date: "Winter Quarter 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+
+We are interested in assessing associations among mortality, creatinine, age, sex, race, and smoking behavior in a population of generally healthy elderly subjects in four U.S. communities
+
+```{r setup, include=FALSE}
+### Setting up the packages, options we'll need:
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(uwIntroStats)
+knitr::opts_chunk$set(echo = FALSE)
+
+# Retrospective highcrt ~ deathin5
+
+   ## odds for highcrt for those who are alive in 5 
+   
+# Prospective deathin5 ~ highcrt
+    ## odds for those who are dead in 5 /vs alive
+```
+
+
+    
+# Question 1
+Suppose we are interested in evaluating associations with all-cause mortality using a logistic regression model.  Perform a logistic regression analysis with indicator of death within 5 years of study enrollment as the response and with creatinine, age, indicator for ever smoked, and indicator of white race as predictors.   
+
+
+
+
+```{r ,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+mri <- read.table("data/mri.txt",header=TRUE) 
+mri$deathin5 <- ifelse(mri$obstime <= 365.25 * 5 & mri$death == 1, TRUE, FALSE) 
+mri$death5 <- (mri$obstime < 5*365) & (mri$death == 1)
+
+mri$smoked <- ifelse(mri$packyrs > 0, 1, 0) 
+mri$wrace <- ifelse(mri$race  == 1, 1, 0) 
+
+#create high/low for crt
+# 1 - high , 0 - low
+mri$crtind <- ifelse(mri$crt>1.2,1,0)
+# high' - high , '0' low - low
+mri$crtindtext <- ifelse(mri$crt>1.2,'high','low')
+mri$logcrt <- log(mri$crt)
+#kable(descrip(mri[mri$death==0,'crt']), format = "markdown")
+#kable(summary(cars), format = "markdown")
+kable(mri%>%filter(!is.na(crt) & deathin5==FALSE) %>% 
+        group_by(deathin5) %>%
+        summarise(n=n(),sd=sd(crt),mean=mean(crt))%>%
+        select(c('n','mean','sd')) %>%
+        as.data.frame() , format = "markdown")
+ 
+
+```
+
+
+```{r,echo=FALSE,include=FALSE}
+
+regress(fnctl = "odds", formula = deathin5 ~ crt + age + smoked + wrace, data = mri)
+
+
+# Call:
+# regress(fnctl = "odds", formula = deathin5 ~ crt + age + smoked + 
+#     wrace, data = mri)
+# 
+# Deviance Residuals: 
+#     Min       1Q   Median       3Q      Max  
+# -1.4044  -0.6171  -0.4987  -0.3829   2.4595  
+# 
+# Coefficients:
+# 
+# Raw Model:
+#                  Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+# [1] Intercept     -8.456     1.433     1.428             35.06 1  < 0.00005
+# [2] crt            1.652     0.3439    0.3394            23.68 1  < 0.00005
+# [3] age           0.06787   0.01805   0.01832            13.73 1    0.0002 
+# [4] smoked         0.2961    0.2204    0.2216             1.79 1    0.1819 
+# [5] wrace         -0.3874    0.2357    0.2362             2.69 1    0.1014 
+# 
+# Transformed Model:
+#                  e(Est)     e(95%L)    e(95%H)          F stat    df Pr(>F)   
+# [1] Intercept     2.125e-04  1.288e-05  3.508e-03           35.06 1  < 0.00005
+# [2] crt             5.217      2.679      10.16             23.68 1  < 0.00005
+# [3] age             1.070      1.032      1.109             13.73 1    0.0002 
+# [4] smoked          1.345     0.8703      2.077              1.79 1    0.1819 
+# [5] wrace          0.6788     0.4270      1.079              2.69 1    0.1014 
+# 
+# (Dispersion parameter for binomial family taken to be 1)
+# 
+#     Null deviance: 653.14  on 731  degrees of freedom
+# Residual deviance: 603.35  on 727  degrees of freedom
+#   (3 observations deleted due to missingness)
+# AIC: 613.35
+# 
+# Number of Fisher Scoring iterations: 4
+```
+
+## (a)
+
+Provide an interpretation of the exponentiated intercept term in the logistic regression model.   
+
+```{r,echo=FALSE,include=FALSE}
+
+mri%>% ggplot(aes(age,sbp,color=as.factor(male))) + geom_point()  +
+geom_smooth(method = "loess", se = FALSE) +  xlab("Age(yrs)") +ylab("Systolic Blood Pressure(mm/Hg)") + 
+geom_smooth(aes(age,sbp,color="red"),method = "loess", se = FALSE) +   ggtitle("Systolic blood pressure of MRI study Individuals") +
+scale_color_manual(name="",labels = c("Male", "Female", "All"), values = c("blue", "red","green")) 
+
+
+```
+
+Intercept is the mean odds of dying in 5 years for newborn non-white race with CRT of zero who never smoked.
+
+
+## (b)
+
+Provide an interpretation of the exponentiated age slope in the logistic regression model.  
+
+
+The odds ratio 
+
+
+## (c)
+From the logistic regression model, is there evidence of an association between death within 5 years of study enrollment and creatinine after adjusting for the other predictors? Give full inference.
+
+```{r,echo=FALSE,include=FALSE}
+
+glm(deathin5 ~ crt + age + smoked + wrace ,data = mri)
+
+
+```
+
+
+## (d)
+From the logistic regression model, is there evidence of an association between death within 5 years of study enrollment and age after adjusting for the other predictors? Provide full inference.
+
+```{r,echo=FALSE,include=FALSE}
+
+#regress(fnctl = "mean", formula = sbp ~ age * male, data = mri)
+
+#Residuals:
+#@   Min     1Q Median     3Q    Max 
+#-50.80 -13.60  -0.94  10.30  76.77 
+
+#Coefficients:
+#                 Estimate  Naive SE  Robust SE    95%L      95%H         F stat    df
+#[1] Intercept      76.47     14.42     13.74        49.49     103.4          30.97 1 
+#[2] age            0.7372    0.1933    0.1855       0.3730    1.101          15.79 1 
+#[3] male           42.00     19.79     19.64        3.445     80.55           4.57 1 
+#[4] age:male      -0.5709    0.2647    0.2643      -1.090   -0.05200          4.67 1 
+#                 Pr(>F)   
+#[1] Intercept    < 0.00005
+#[2] age            0.0001 
+#[3] male           0.0328 
+#[4] age:male       0.0311 
+
+#Residual standard error: 19.5 on 731 degrees of freedom
+#Multiple R-squared:  0.02073,	Adjusted R-squared:  0.01671 
+#F-statistic: 5.527 on 3 and 731 DF,  p-value: 0.0009362 
+
+# the difference in slope  between the two sexes is not zero.
+```
+
+## (e)
+From the logistic regression model, what is the best estimate of the odds of dying within 5 years of study enrollment for a non-white race individual who is 76 years old, has previously smoked, and has a creatinine level of 0.95.    
+
+## (f)
+From the logistic regression model, what is the best estimate of the probability of dying within 5 years of study enrollment for a white race individual who is 69 years old,  has never smoked, and has a creatinine level of 1.2.
+
+# Question 2
+Now perform a logistic regression analysis with indicator of death within 5 years of study enrollment as the response and creatinine, age, indicator of ever smoked, indicator of white race, and sex as predictors. 
+
+```{r,echo=FALSE,include=FALSE}
+
+regress(fnctl = "odds", formula = deathin5 ~ crt + age + smoked + wrace + male, data = mri)
+
+
+# Call:
+# regress(fnctl = "odds", formula = deathin5 ~ crt + age + smoked + 
+#     wrace + male, data = mri)
+# 
+# Deviance Residuals: 
+#     Min       1Q   Median       3Q      Max  
+# -1.3734  -0.6178  -0.5013  -0.3799   2.4908  
+# 
+# Coefficients:
+# 
+# Raw Model:
+#                  Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+# [1] Intercept     -8.388     1.435     1.444             33.74 1  < 0.00005
+# [2] crt            1.497     0.3647    0.3583            17.45 1  < 0.00005
+# [3] age           0.06753   0.01806   0.01850            13.33 1    0.0003 
+# [4] smoked         0.2606    0.2225    0.2256             1.33 1    0.2485 
+# [5] wrace         -0.3903    0.2361    0.2375             2.70 1    0.1007 
+# [6] male           0.2680    0.2320    0.2279             1.38 1    0.2401 
+# 
+# Transformed Model:
+#                  e(Est)     e(95%L)    e(95%H)          F stat    df Pr(>F)   
+# [1] Intercept     2.277e-04  1.337e-05  3.876e-03           33.74 1  < 0.00005
+# [2] crt             4.469      2.211      9.030             17.45 1  < 0.00005
+# [3] age             1.070      1.032      1.109             13.33 1    0.0003 
+# [4] smoked          1.298     0.8333      2.021              1.33 1    0.2485 
+# [5] wrace          0.6769     0.4247      1.079              2.70 1    0.1007 
+# [6] male            1.307     0.8357      2.045              1.38 1    0.2401 
+# 
+# (Dispersion parameter for binomial family taken to be 1)
+# 
+#     Null deviance: 653.14  on 731  degrees of freedom
+# Residual deviance: 602.02  on 726  degrees of freedom
+#   (3 observations deleted due to missingness)
+# AIC: 614.02
+# 
+# Number of Fisher Scoring iterations: 5
+```
+
+## (a)
+Provide an interpretation of the exponentiated intercept term in the logistic regression model.  
+
+It is the base odds for for group which does not die in 5 years for new-born females of non-smoking non-white race with CRT of 0. Not scientifically relevant as not the study group.
+
+
+```{r,include=TRUE,warning=FALSE,error=FALSE,error=FALSE}
+
+
+```
+
+## (b)
+Provide an interpretation of the exponentiated sex slope in the logistic regression model. 
+
+Odds ratio of  two groups dying in 5 years with not dying in 5 years between males and females. The odds ratio is for the two sex groups who have same race, smoking status, age and CRT level.
+
+
+
+## (c)
+Provide full inference for an association between all-cause mortality within 5 years and sex using the logistic regression model.
+
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+
+```
+
+## (d)
+Provide full inference for an association between all-cause mortality within 5 year years and creatinine using the logistic regression.
+
+
+## (e)
+Is sex a confounder, precision variable, both or neither for the associations between all-cause mortality within 5 years of study enrollment and each of the other four predictors of interest: creatinine, age, indicator of ever smoked, and  indicator of white race?  Explain and provide evidence to support your reasoning. 
+
+
+Race looks to be a precision variable.
+
+* As it reduces the variance when race is added, the confidence intervel becomes tighter(evident in scatter plot)
+
+
+
+
+# Question 3
+
+Now suppose we are interested in evaluating associations with all-cause mortality using a Poisson regression analysis. Perform a Poisson regression analysis with indicator of death within 5 years as the response and creatinine, age, indicator of ever smoked, indicator of white race, and sex as predictors. 
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+regress(fnctl = "rate", formula = deathin5 ~ crt + age + smoked + 
+    wrace + male, data = mri)
+
+# Call:
+# regress(fnctl = "rate", formula = deathin5 ~ crt + age + smoked + 
+#     wrace + male, data = mri)
+# 
+# Deviance Residuals: 
+#     Min       1Q   Median       3Q      Max  
+# -1.0895  -0.5787  -0.4925  -0.3910   1.9752  
+# 
+# Coefficients:
+# 
+# Raw Model:
+#                  Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+# [1] Intercept     -6.560     1.183     1.026             40.86 1  < 0.00005
+# [2] crt            0.7488    0.1923    0.1704            19.30 1  < 0.00005
+# [3] age           0.05044   0.01524   0.01344            14.09 1    0.0002 
+# [4] smoked         0.2698    0.1973    0.1813             2.21 1    0.1372 
+# [5] wrace         -0.3143    0.2056    0.1797             3.06 1    0.0807 
+# [6] male           0.3018    0.2031    0.1829             2.72 1    0.0995 
+# 
+# Transformed Model:
+#                  e(Est)     e(95%L)    e(95%H)         F stat    df Pr(>F)   
+# [1] Intercept     1.416e-03  1.889e-04  0.01062            40.86 1  < 0.00005
+# [2] crt             2.115      1.513     2.955             19.30 1  < 0.00005
+# [3] age             1.052      1.024     1.080             14.09 1    0.0002 
+# [4] smoked          1.310     0.9175     1.869              2.21 1    0.1372 
+# [5] wrace          0.7303     0.5132     1.039              3.06 1    0.0807 
+# [6] male            1.352     0.9442     1.937              2.72 1    0.0995 
+# 
+# (Dispersion parameter for poisson family taken to be 1)
+# 
+#     Null deviance: 433.99  on 731  degrees of freedom
+# Residual deviance: 396.57  on 726  degrees of freedom
+#   (3 observations deleted due to missingness)
+# AIC: 648.57
+# 
+# Number of Fisher Scoring iterations: 6
+
+```
+ 
+
+## (a)
+
+Provide an interpretation of the exponentiated intercept term of the Poisson regression model. 
+
+
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+```
+
+Exponentiated intercept(.00141) is the base rate of death in 5 years for newborn female non-white race who have never smoked, and have CRT as 0 mm/dl.
+
+## (b)
+Provide an interpretation of the exponentiated creatinine slope in the Poisson regression model. 
+
+
+```{r,include=FALSE}
+
+```
+
+Exponentiate CRT slope (2.95) is the odds ratio or the risk-rate(RR) for subjects dying in 5 years/not dying in 5 year who differ by one unit change in CRT  by keeping all the other covariates constant.  
+
+## (c)
+Provide full inference with the Poisson regression model for an association between all-cause mortality within 5 years of enrollment and creatinine after adjusting for the other predictors.  
+
+When comparing two groups(dying in 5 vs not dying in 5 years) with CRT differing in 1 unit(mg/dl), but having the same sex, age, racial group and  smoking status, the risk of 5-yr all-cause mortality is estimated to be 111.4% lower in group which does not die in 5 years. Risk-Rate is 2.11 (95% CI 1.51 to 2.95 with p-value < 0.001)
+
+## (d)
+Provide full inference with the Poisson regression model for an association between all-cause mortality within 5 years of enrollment and sex after adjusting for the other predictors.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+regress(fnctl = "rate", formula = deathin5 ~ male + crt + age + smoked + 
+    wrace , data = mri)
+
+# ( 3  cases deleted due to missing values)
+# 
+# 
+# Call:
+# regress(fnctl = "rate", formula = deathin5 ~ male + crt + age + 
+#     smoked + wrace, data = mri)
+# 
+# Deviance Residuals: 
+#     Min       1Q   Median       3Q      Max  
+# -1.0895  -0.5787  -0.4925  -0.3910   1.9752  
+# 
+# Coefficients:
+# 
+# Raw Model:
+#                  Estimate  Naive SE  Robust SE       F stat    df Pr(>F)   
+# [1] Intercept     -6.560     1.183     1.026             40.86 1  < 0.00005
+# [2] male           0.3018    0.2031    0.1829             2.72 1    0.0995 
+# [3] crt            0.7488    0.1923    0.1704            19.30 1  < 0.00005
+# [4] age           0.05044   0.01524   0.01344            14.09 1    0.0002 
+# [5] smoked         0.2698    0.1973    0.1813             2.21 1    0.1372 
+# [6] wrace         -0.3143    0.2056    0.1797             3.06 1    0.0807 
+# 
+# Transformed Model:
+#                  e(Est)     e(95%L)    e(95%H)         F stat    df Pr(>F)   
+# [1] Intercept     1.416e-03  1.889e-04  0.01062            40.86 1  < 0.00005
+# [2] male            1.352     0.9442     1.937              2.72 1    0.0995 
+# [3] crt             2.115      1.513     2.955             19.30 1  < 0.00005
+# [4] age             1.052      1.024     1.080             14.09 1    0.0002 
+# [5] smoked          1.310     0.9175     1.869              2.21 1    0.1372 
+# [6] wrace          0.7303     0.5132     1.039              3.06 1    0.0807 
+# 
+# (Dispersion parameter for poisson family taken to be 1)
+# 
+#     Null deviance: 433.99  on 731  degrees of freedom
+# Residual deviance: 396.57  on 726  degrees of freedom
+#   (3 observations deleted due to missingness)
+# AIC: 648.57
+# 
+# Number of Fisher Scoring iterations: 6
+
+
+```
+
+When comparing two groups(dying in 5 vs not dying in 5 years) between males and females, but having the same CRT, age, racial group and  smoking status, the risk of 5-yr all-cause mortality is estimated to be 35.2% lower in group which does not die in 5 years. Risk-Rate is 1.35 (95% C.94 to 1.93 with p-value = 0.09)
+
+## Not right, need analysis
