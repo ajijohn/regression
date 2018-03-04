@@ -1,0 +1,436 @@
+---
+title: "Homework 8"
+author: "Aji John"
+date: "Winter Quarter 2018"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+
+We are interested in assessing associations among mortality, creatinine, age, sex, and smoking behavior in a population of generally healthy elderly subjects in four U.S. communities
+
+```{r setup, include=FALSE}
+### Setting up the packages, options we'll need:
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(uwIntroStats)
+library(survival)
+knitr::opts_chunk$set(echo = FALSE)
+
+# Retrospective highcrt ~ deathin5
+
+   ## odds for highcrt for those who are alive in 5 
+   
+# Prospective deathin5 ~ highcrt
+    ## odds for those who are dead in 5 /vs alive
+```
+
+
+    
+# Question 1
+Suppose we are interested in any association between risk of all-cause mortality and sex using the Kaplan-Meier estimator of the survival function. Estimate survival functions for the two sex groups using the Kaplan-Meier estimator.  
+
+
+
+
+```{r ,echo=FALSE,include=FALSE}
+### Question 1:
+# Part (a)
+mri <- read.table("data/mri.txt",header=TRUE) 
+mri$deathin5 <- ifelse(mri$obstime <= 365.25 * 5 & mri$death == 1, TRUE, FALSE) 
+mri$death5 <- (mri$obstime < 5*365) & (mri$death == 1)
+
+mri$smoked <- ifelse(mri$packyrs > 0, 1, 0) 
+mri$wrace <- ifelse(mri$race  == 1, 1, 0) 
+
+#its right censored ?
+
+survobj<-with(mri, Surv(obstime, death))
+mri$surv <- survobj
+#create high/low for crt
+# 1 - high , 0 - low
+mri$crtind <- ifelse(mri$crt>1.2,1,0)
+# high' - high , '0' low - low
+mri$crtindtext <- ifelse(mri$crt>1.2,'high','low')
+mri$logcrt <- log(mri$crt)
+
+ 
+
+```
+
+
+```{r,echo=FALSE,include=FALSE}
+
+
+```
+
+## (a)
+
+Provide a plot with the Kaplan-Meier estimated survival functions for the two sex groups.   The two Kaplan-Meier curves should appear on the same plot.  Also briefly comment on any differences/similarity of the survival curves.   
+
+```{r,echo=FALSE,include=TRUE}
+
+kms<-survfit( surv~ male, data=mri)
+plot(kms, col=c("blue", "red"), xlab="time (weeks)", ylab="Survival", 
+     main="Kaplan-Meier survival estimates")
+  
+legend( "topright", bty="n", lty=1, col=c("blue", "red"),legend=c("Female","Male"))
+
+```
+
+
+Lower survival rate in males in the censoring period than females.
+
+## (b)
+
+Is there an association between risk of all-cause mortality and sex based on the Kaplan-Meier survival estimates?  Explain and provide appropriate statistical evidence supporting your reasoning.   
+
+
+```{r,echo=FALSE,include=FALSE}
+
+survdiff(surv~male,data=mri)
+
+# Call:
+# survdiff(formula = surv ~ male, data = mri)
+# 
+#          N Observed Expected (O-E)^2/E (O-E)^2/V
+# male=0 369       47     68.8      6.89      14.3
+# male=1 366       86     64.2      7.38      14.3
+# 
+#  Chisq= 14.3  on 1 degrees of freedom, p= 0.000156 
+#  
+```
+Based on KM estimates, we find that there is an association between sex and all-cause mortality. We support it by doing an Chi-sq test betwwen the survival rate and two sex groups, and our test suggested it as significant(p-value < 0.001).
+
+
+# Question 2
+Now suppose we are interested in any association between risk of all-cause mortality and sex using a Cox proportional hazards regression model. Perform a Cox proportional hazards regression analysis of risk of mortality with sex as a predictor.  
+
+```{r,echo=FALSE,include=FALSE}
+
+coxreg1 <- coxph(survobj ~ male, data=mri)
+
+summary(coxreg1)
+
+
+# Call:
+# coxph(formula = survobj ~ male, data = mri)
+# 
+#   n= 735, number of events= 133 
+# 
+#        coef exp(coef) se(coef)     z Pr(>|z|)    
+# male 0.6739    1.9618   0.1816 3.711 0.000206 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+#      exp(coef) exp(-coef) lower .95 upper .95
+# male     1.962     0.5097     1.374       2.8
+# 
+# Concordance= 0.586  (se = 0.022 )
+# Rsquare= 0.019   (max possible= 0.902 )
+# Likelihood ratio test= 14.45  on 1 df,   p=0.0001437
+# Wald test            = 13.77  on 1 df,   p=0.0002062
+# Score (logrank) test = 14.3  on 1 df,   p=0.0001559
+```
+
+## (a)
+Provide an interpretation of the exponentiated slope for sex in your proportional hazards regression model.
+
+It is the hazard ratio which comes to be 1.962^sex.
+Males have instantaneous event rate 1.962 times higher (96.2% higher) than females.
+
+```{r,include=TRUE,warning=FALSE,error=FALSE,error=FALSE}
+
+
+```
+
+## (b)
+Provide full inference for an association between risk of mortality and sex from the Cox proportional hazards regression model in part a.
+
+From proportional hazards regression analysis, we estimate that for two sex groups, the risk of death is  96.2% higher in males. This estimate is highly statistically significant (P < .001). A 95% CI suggests that this observation is not unusual if male group might have risk of death that was anywhere from 37.4% higher to  180% higher than the females.
+
+
+## (c)
+Compare the risk of mortality and sex association results from the Cox proportional hazards regression model to the association results in problem 1 obtained using the Kaplan-Meier method.  Briefly discuss any differences in assumptions between the two methods. 
+
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+
+```
+
+
+The results between KM and Cox seem to be in agreement, the risk of death is higher in males than in females.
+
+# Question 3
+
+Now conduct a Cox proportional hazards regression analysis for risk of all-cause mortality with both sex and age at the time of study enrollment included as predictors. 
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+coxreg2 <- coxph(survobj ~ male + age, data=mri)
+
+summary(coxreg2)
+
+# Call:
+# coxph(formula = survobj ~ male + age, data = mri)
+# 
+#   n= 735, number of events= 133 
+# 
+#         coef exp(coef) se(coef)     z Pr(>|z|)    
+# male 0.64344   1.90301  0.18185 3.538 0.000403 ***
+# age  0.06486   1.06701  0.01330 4.878 1.07e-06 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+#      exp(coef) exp(-coef) lower .95 upper .95
+# male     1.903     0.5255     1.332     2.718
+# age      1.067     0.9372     1.040     1.095
+# 
+# Concordance= 0.647  (se = 0.026 )
+# Rsquare= 0.047   (max possible= 0.902 )
+# Likelihood ratio test= 35.45  on 2 df,   p=2.007e-08
+# Wald test            = 38.49  on 2 df,   p=4.389e-09
+# Score (logrank) test = 38.86  on 2 df,   p=3.646e-09
+
+```
+ 
+
+## (a)
+
+Provide an interpretation of the exponentiated slope for sex in your Cox proportional hazards regression model.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+```
+
+It is the hazard ratio which comes to be 1.903^sex.
+Males have instantaneous event rate 1.903 times higher (90.3% higher) than females.
+
+## (b)
+Provide an interpretation of the exponentiated slope for age in your Cox proportional hazards regression model.
+
+
+```{r,include=FALSE}
+
+```
+
+It is the hazard ratio which comes to be 1.067^age
+Older age group have instantaneous event rate 1.067 times higher (6.7% higher) than younger group.
+
+
+## (c)
+Provide full inference for an association between risk of all-cause mortality and sex with the Cox proportional hazards regression model.
+
+From proportional hazards regression analysis, we estimate that for two sex groups, the risk of death is  90.3% higher in males. This estimate is highly statistically significant (P < .001). A 95% CI suggests that this observation is not unusual if male group might have risk of death that was anywhere from 33.2% higher to  171.8% higher than the females.
+
+## (d)
+Provide full inference for an association between risk of all-cause mortality and age with the Cox proportional hazards regression model.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+```
+From proportional hazards regression analysis, we estimate that for two age groups who differ by 1 year, the risk of death is  6.7% higher in older age group This estimate is highly statistically significant (P < .001). A 95% CI suggests that this observation is not unusual if the older age group might have risk of death that was anywhere from 4% higher to  9.5% higher than the younger age group.
+
+
+## (e)
+Does age at the time of study enrollment confound the association between risk of all-cause mortality and sex?  Explain and provide evidence to support your reasoning. 
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+mri%>%ggplot(aes(age,death,color=as.factor(male))) + geom_point() +theme_classic()
+
+anova(coxreg1,coxreg2)
+```
+
+On doing ANOVA test with null model as 'Death' given age, and alternate model as 'Death' given age and sex, we find that age has significant effect the all cause mortality(p-value < 0.001 ). Furthermore, if age is assumed to confound the association between all-cause mortality and sex, it should have significant associations with both, but what we find is contrary, death and age are associated as it is found to be significant(no surprise! - p-value <0.001), and innately, age and sex are not associated(neverthless, p-value 0.4). Given the additional analysis, we can say with certainity that age at the time of enrollment did not confound the association, rather it contributed as a precision. 
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+awithall <- glm(death ~ age , data = mri,family = 'binomial')
+summary(awithall)
+
+# Call:
+# glm(formula = death ~ age, family = "binomial", data = mri)
+# 
+# Deviance Residuals: 
+#     Min       1Q   Median       3Q      Max  
+# -1.3512  -0.6478  -0.5590  -0.4808   2.1388  
+# 
+# Coefficients:
+#             Estimate Std. Error z value Pr(>|z|)    
+# (Intercept) -7.58179    1.26759  -5.981 2.21e-09 ***
+# age          0.08062    0.01663   4.849 1.24e-06 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for binomial family taken to be 1)
+# 
+#     Null deviance: 695.07  on 734  degrees of freedom
+# Residual deviance: 671.76  on 733  degrees of freedom
+# AIC: 675.76
+# 
+# Number of Fisher Scoring iterations: 4
+
+
+awithsex <- glm(male ~ age , data = mri,family = 'binomial')
+summary(awithsex)
+
+# Call:
+# glm(formula = male ~ age, family = "binomial", data = mri)
+# 
+# Deviance Residuals: 
+#    Min      1Q  Median      3Q     Max  
+# -1.250  -1.167  -1.130   1.183   1.220  
+# 
+# Coefficients:
+#             Estimate Std. Error z value Pr(>|z|)
+# (Intercept) -0.81367    1.01397  -0.802    0.422
+# age          0.01080    0.01356   0.796    0.426
+# 
+# (Dispersion parameter for binomial family taken to be 1)
+# 
+#     Null deviance: 1018.9  on 734  degrees of freedom
+# Residual deviance: 1018.3  on 733  degrees of freedom
+# AIC: 1022.3
+# 
+# Number of Fisher Scoring iterations: 3
+```
+
+# Question 4
+
+Now perform a Cox proportional hazards regression analysis of all-cause mortality with creatinine, age, sex, and indicator of ever smoked included as predictors.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+coxreg3 <- coxph(survobj ~ crt+age + male + smoked, data=mri)
+
+summary(coxreg3)
+
+# Call:
+# coxph(formula = survobj ~ crt + age + male + smoked, data = mri)
+# 
+#   n= 732, number of events= 132 
+#    (3 observations deleted due to missingness)
+# 
+#           coef exp(coef) se(coef)     z Pr(>|z|)    
+# crt    1.24886   3.48637  0.21817 5.724 1.04e-08 ***
+# age    0.06784   1.07020  0.01393 4.871 1.11e-06 ***
+# male   0.27719   1.31942  0.18966 1.462    0.144    
+# smoked 0.28884   1.33487  0.18978 1.522    0.128    
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+#        exp(coef) exp(-coef) lower .95 upper .95
+# crt        3.486     0.2868    2.2733     5.347
+# age        1.070     0.9344    1.0414     1.100
+# male       1.319     0.7579    0.9098     1.913
+# smoked     1.335     0.7491    0.9202     1.936
+# 
+# Concordance= 0.669  (se = 0.026 )
+# Rsquare= 0.079   (max possible= 0.901 )
+# Likelihood ratio test= 60.52  on 4 df,   p=2.252e-12
+# Wald test            = 71.48  on 4 df,   p=1.11e-14
+# Score (logrank) test = 72.27  on 4 df,   p=7.55e-15
+
+```
+## (a)
+Provide full inference for an association between risk of all-cause mortality and creatinine with the proportional hazards regression model.
+
+From proportional hazards regression analysis, we estimate that for two  groups who differ by 1 unit(mg/DL) change in CRT year, the risk of death is  248.6% higher in the group that has the higher CRT. This estimate is highly statistically significant (P < .001). A 95% CI suggests that this observation is not unusual if the group with higher CRT might have risk of death that was anywhere from 127.33% higher to  434.7% higher than the group with lower CRT.
+
+## (b)
+Provide full inference for an association between risk of all-cause mortality and smoking with the proportional hazards regression model.
+
+From proportional hazards regression analysis, we estimate that for two smoking groups(never smoked vs smoked), the risk of death is  33.5% higher in the group that has smoked. This estimate is found to be not statistically significant (P = 0.12). A 95% CI suggests that this observation is not unusual if the group that smoked might have risk of death that was anywhere from -7.98% lower to  93.6% higher than the group that has never smoked.
+
+
+# Question 5
+
+Now perform a Cox proportional hazards regression analysis and provide inference on whether sex modifies an age and ever smoked adjusted association between mortality and creatinine.  Explain and provide full inference supporting your reasoning. 
+
+(Rephrased) Now perform a Cox proportional hazards regression analysis and provide inference on whether sex modifies the association between mortality and creatinine in a model that controls for age and ever smoked.
+
+```{r ,echo=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+
+coxreg5alt <- coxph(survobj ~ crt + age + male + smoked, data=mri)
+
+summary(coxreg5alt)
+
+coxreg5null <- coxph(survobj ~ crt + age +  smoked, data=mri)
+
+summary(coxreg5null)
+
+anova(coxreg5alt,coxreg5null)
+
+# > coxreg5alt <- coxph(survobj ~ crt + age + male + smoked, data=mri)
+# > 
+# > summary(coxreg5alt)
+# Call:
+# coxph(formula = survobj ~ crt + age + male + smoked, data = mri)
+# 
+#   n= 732, number of events= 132 
+#    (3 observations deleted due to missingness)
+# 
+#           coef exp(coef) se(coef)     z Pr(>|z|)    
+# crt    1.24886   3.48637  0.21817 5.724 1.04e-08 ***
+# age    0.06784   1.07020  0.01393 4.871 1.11e-06 ***
+# male   0.27719   1.31942  0.18966 1.462    0.144    
+# smoked 0.28884   1.33487  0.18978 1.522    0.128    
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+#        exp(coef) exp(-coef) lower .95 upper .95
+# crt        3.486     0.2868    2.2733     5.347
+# age        1.070     0.9344    1.0414     1.100
+# male       1.319     0.7579    0.9098     1.913
+# smoked     1.335     0.7491    0.9202     1.936
+# 
+# Concordance= 0.669  (se = 0.026 )
+# Rsquare= 0.079   (max possible= 0.901 )
+# Likelihood ratio test= 60.52  on 4 df,   p=2.252e-12
+# Wald test            = 71.48  on 4 df,   p=1.11e-14
+# Score (logrank) test = 72.27  on 4 df,   p=7.55e-15
+# 
+# > 
+# > coxreg5null <- coxph(survobj ~ crt + age +  smoked, data=mri)
+# > 
+# > summary(coxreg5null)
+# Call:
+# coxph(formula = survobj ~ crt + age + smoked, data = mri)
+# 
+#   n= 732, number of events= 132 
+#    (3 observations deleted due to missingness)
+# 
+#           coef exp(coef) se(coef)     z Pr(>|z|)    
+# crt    1.31211   3.71400  0.20121 6.521 6.98e-11 ***
+# age    0.07004   1.07255  0.01397 5.014 5.33e-07 ***
+# smoked 0.33540   1.39850  0.18756 1.788   0.0737 .  
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+#        exp(coef) exp(-coef) lower .95 upper .95
+# crt        3.714     0.2693    2.5036     5.509
+# age        1.073     0.9324    1.0436     1.102
+# smoked     1.398     0.7151    0.9683     2.020
+# 
+# Concordance= 0.658  (se = 0.026 )
+# Rsquare= 0.077   (max possible= 0.901 )
+# Likelihood ratio test= 58.34  on 3 df,   p=1.333e-12
+# Wald test            = 73.18  on 3 df,   p=8.882e-16
+# Score (logrank) test = 72.16  on 3 df,   p=1.443e-15
+# 
+# > 
+# > anova(coxreg5alt,coxreg5null)
+# Analysis of Deviance Table
+#  Cox model: response is  survobj
+#  Model 1: ~ crt + age + male + smoked
+#  Model 2: ~ crt + age + smoked
+#    loglik  Chisq Df P(>|Chi|)
+# 1 -817.97                    
+# 2 -819.07 2.1881  1    0.1391
+
+```
+
+On doing ANOVA with null model assuming sex irrelevant(i.e. having mortality studied with respect to CRT, age and ever smoked indicator), and alternate model explaining it by sex(i.e. having mortality studied with respect to CRT, sex,age and ever smoked indicator), we find evidence that sex does not seem to modify the association between all cause mortality and CRT when controlled by age and smoking behaviour(ever smoked or not), p-value is found to be .13. 

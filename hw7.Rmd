@@ -270,7 +270,7 @@ It is the estimated base odds for for group which does not die in 5 years for ne
 ## (b)
 Provide an interpretation of the exponentiated sex slope in the logistic regression model. 
 
-Estimated odds ratio of  two groups dying in 5 years with not dying in 5 years between males and females. The odds ratio is for the two sex groups who have same race, smoking status, age and CRT level.
+Estimated odds ratio of dying in 5 years between males and females. The odds ratio is for the two sex groups who have same race, smoking status, age and CRT level.
 
 
 
